@@ -1,0 +1,96 @@
+{% load staticfiles %}
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StickyNote</title>
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  <!--Import Quill (a rich text editor) stylesheet-->
+  <link href="https://cdn.quilljs.com/1.3.4/quill.snow.css" rel="stylesheet">
+  <!--Import bootstrap-->
+  <link href="{% static 'bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'bootstrap/bootstrap-modal-bs3patch.css' %}" rel="stylesheet">
+  <link href="{% static 'bootstrap/bootstrap3-modal.css' %}" rel="stylesheet">
+
+<body>
+  <!-- Navigation -->
+  <nav id="id_navbar" class="navbar navbar-default navbar-static-top">
+    <div class='container-fluid'>
+      <div class="navbar-header">
+        <div class="navbar-brand navbar-left">
+      		<img id="id_stickynote_img" src="{% static 'Images/stickynote.png' %}"/>
+      		<div>
+      			<span id="id_stickynote_title">StickyNote</span>
+      		</div>
+        </div>
+        <!--The icon that appears on mobile devices (when not enough space is available in the navbar for it all to fit)-->
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li id="asdf" class="clickable"><a id="id_login_button" href="#">LOGIN</a></li>
+        </ul>
+        <!--
+    		<div id="id_div_login">
+    			<span id="id_login_button" class="clickable">LOGIN</span>
+    		</div>
+        -->
+      </div>
+    </div>
+  </nav>
+
+  {% if user.is_authenticated %}
+    <p>Logged in</p>
+  {%else%}
+    <p>NOT logged in</p>
+  {%endif%}
+
+  <!-- Login Form -->
+  <div id='id_dropdown_login' class='login-form hidden_elem'>
+    <div class=''>
+      <form id="id_login_form" method="POST">
+        {% csrf_token %}
+        <h4>Username</h4>
+        <input name='username' placeholder="Username"/>
+        <h4>Password</h4>
+        <input name='password' type='password' placeholder="Password"/>
+		        <p id="error_invalid_username_or_password" class="error_msg hidden_elem">ERROR: Invalid Username-Password Combination Given</p>
+        <input class="submit_button clickable" type='submit' value='Sign In'/>
+      </form>
+    </div>
+  </div>
+  <!--Logout form-->
+  <div id="id_dropdown_logout" class='login-form hidden_elem'>
+    <div class=''>
+      <form id="id_logout_form">
+        <h4 id="id_greeting_user">Hi USERNAME!</h4>
+        <input class="submit_button clickable" type='submit' value='Log Out'/>
+      </form>
+    </div>
+  </div>
+
+  {% block content %}
+  {% endblock %}
+
+	<!--Import JQuery-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<!--Import the Scrollbar appear-listener-->
+	<script src="{% static 'Scripts/scrollbar-resize-listener.js' %}"></script>
+	<!-- Include the Quill library -->
+	<script src="https://cdn.quilljs.com/1.3.4/quill.js"></script>
+  <!--Import Bootstrap JS-->
+  <script src="{% static 'Bootstrap/bootstrap.min.js' %}"></script>
+  <script src="{% static 'Bootstrap/bootstrap3-modalmanager.js' %}"></script>
+  <script src="{% static 'Bootstrap/bootstrap3-modal.js' %}"></script>
+	<!--Import the JS file-->
+	<script src="{% static 'index.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+{% extends 'stickynote/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+  <!--StickyNotes grid (not actually a grid anymore after implementing bootstrap):-->
+  <div class="stickyNotesGrid">
+  	<div class="sticky_div">
+  		<div class='clickable' id="id_add_sticky_button">
+  			<img class='sticky_img sticky_elem' src="{% static 'Images/stickynote_yellow.png' %}"/>
+  			<img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
+  			<p class='add_sticky_text sticky_elem'>Add Sticky</p>
+  		</div>
+  	</div>
+  	<!--Actual stickynote data is added dynamically-->
+  </div>
+
+  <!--Stickynote creation/edit screen-->
+  <div class="popup popup_elem hidden_elem" id="id_popup_add_sticky">
+  <div class="sticky_edit popup_elem">
+  	<div class="header popup_elem">
+  		<h1 class="popup_elem popup_title">POPUP TITLE</h1>
+  	</div>
+  	<div class="body row">
+  		<div id="id_sticky_options" class="col-xs-12 col-md-4">
+  			<form id="id_sticky_options_form_colour" class="sticky_option_element">
+  				<h3>Sticky Colour:</h3>
+  				<!--Form is populated dynamically-->
+  			</form>
+  			<div id="id_sticky_options_delete_sticky" class="sticky_option_element edit_only clickable">
+  				<div>
+  					<img id="id_trashcan_icon" src="{% static 'Images/trashcan_white_closed.png'%}" height=25/>
+  					<h3>Delete Sticky</h3>
+  				</div>
+  			</div>
+  		</div>
+      <div class="col-xs-12 col-md-8">
+  			<form id="id_sticky_form">
+  				<h2>Title:</h2>
+  				<input name='title' class="editor_input" placeholder="Insert Title Here..."/>
+  				<h2>Contents</h2>
+  				<div class="quill_editor_holder editor_input">
+  					<div class="quill_editor"></div>
+  				</div>
+  				<div class="buttons">
+  					<input class="popup_submit_button clickable" type='submit' value='Save'/>
+  					<input class="popup_cancel_button clickable" type='submit' value='Cancel'/>
+  				</div>
+  			</form>
+    </div>
+  	</div>
+  </div>
+  <!--Grey out the rest of the screen (to prevent button presses as well)-->
+  <div class="hide_screen"></div>
+  </div>
+{% endblock %}
