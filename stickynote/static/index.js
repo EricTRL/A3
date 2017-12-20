@@ -25,6 +25,16 @@ $(document).ready(function() {
 		}
 	});
 
+	//When opening/closing the menu in mobile browsers (or other small screens, hide the login form initially)
+	$('.navbar-toggle').on('click', function(e) {
+		e.preventDefault();
+		if (!bIsLoggedIn) {
+			$('#id_dropdown_login').stop().slideUp();
+		}else{
+			$('#id_dropdown_logout').stop().slideUp();
+		}
+	});
+
 	//what happens when you submit the login-form
 	$('#id_login_form').submit(function(e) {
 		e.preventDefault();
