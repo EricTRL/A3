@@ -12,6 +12,13 @@ from django.contrib.auth import authenticate, login, logout #authenticate, login
 
 import json #for decoding JSON strings
 
+#REST API:
+from django.shortcuts import get_object_or_404 #Nice responses
+from rest_framework.views import APIView #Lets normal view return API data
+from rest_framework.response import Response #Handles JSON,... responses
+from rest_framework import status
+from .serializers import ColourSerializer, StickynoteSerializer, UserSerializer
+from rest_framework import permissions #User permissions (I.e. extra admin priviliges)
 
 #Initial page load
 def page_load(request):
@@ -174,8 +181,91 @@ def user_is_authenticated(request):
     return JsonResponse({'authenticated': False})
 
 
+######################################################################
+#REST API
+
+#host/stickies/
+class StickynoteList(APIView):
+    '''Lists all Stickynotes'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get(self, request): #GET requessts
+        stickies = Stickynote.objects.all()
+        serializer = StickynoteSerializer(stickies, many=True)
+        return Response(serializer.data)
+
+#host/stickies/id
+class StickynoteDetails(APIView):
+    '''Data of a specific Stickynote'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get_object(self, id):
+        try:
+            return Stickynote.objects.get(id=id)
+        except Stickynote.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        stickynote = self.get_object(id)
+        serializer = StickynoteSerializer(stickynote)
+        return Response(serializer.data)
+
+#host/stickies/user/author_id
+class StickynoteAuthorList(APIView):
+    '''Lists all stickynotes of a specific User'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get(self, request, author_id, format=None): #GET requessts
+        stickies = Stickynote.objects.filter(author_id=author_id)
+        serializer = StickynoteSerializer(stickies, many=True)
+        return Response(serializer.data)
+
+#host/colours/
+class ColourList(APIView):
+    '''Lists all Colours'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None): #GET requessts
+        colours = Colour.objects.all()
+        serializer = ColourSerializer(colours, many=True)
+        return Response(serializer.data)
+
+#host/colours/id/
+class ColourDetails(APIView):
+    '''Data of a specific Colour'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get_object(self, id):
+        try:
+            return Colour.objects.get(id=id)
+        except Colour.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        colour = self.get_object(id)
+        serializer = ColourSerializer(colour)
+        return Response(serializer.data)
+
+#host/colours/
+class UserList(APIView):
+    '''Lists all Users'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None): #GET requessts
+        colours = User.objects.all()
+        serializer = UserSerializer(colours, many=True)
+        return Response(serializer.data)
+
+#host/user/id/
+class UserDetails(APIView):
+    '''Data of a specific User'''
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    def get_object(self, id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        user = self.get_object(id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
 
 
 
-#there's a comment here as atom keeps removing empty lines
+#there's a comment here as atom keeps removing empty lines at the end of a file

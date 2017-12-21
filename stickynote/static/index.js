@@ -1,5 +1,4 @@
 //AUTHOR: 1004076
-//NOTE: This could probably be done way more efficient, but at least it works
 /*Browser Compatibility:
 Versions lower than the ones specified here are probabably NOT compatible/do NOT work.
 Versions of incompatible browsers released after 6-12-2017 may become compatible in the future once CSS Grid properties are implemented in those browsers
@@ -38,7 +37,7 @@ $(document).ready(function() {
 	//what happens when you submit the login-form
 	$('#id_login_form').submit(function(e) {
 		e.preventDefault();
-		console.log('Login Form Submitted');
+		print('Login Form Submitted');
 		const sUsername = $("#id_login_form input[name=username]").val();
 		const sPassword = $("#id_login_form input[name=password]").val();
 
@@ -58,14 +57,14 @@ $(document).ready(function() {
 								'password': sPassword,
 					      },
 					success: function(){
-							console.log('SUCCESSFUL LOGIN');
+							print('SUCCESSFUL LOGIN');
 							onLogin();
 							$('#error_invalid_username_or_password').hide();
 					},
 					error: function(jqXHR, status, errorThrown) {
-							console.log('FAILED LOGIN');
+							print('FAILED LOGIN');
 							$('#error_invalid_username_or_password').show();
-					  	//console.log(jqXHR);
+					  	//print(jqXHR);
 					},
 	      });
 	});
@@ -73,7 +72,7 @@ $(document).ready(function() {
 	//what happens when you submit the logout-form
 	$('#id_logout_form').submit(function(e) {
 	  e.preventDefault();
-	  console.log('Logout Form Submitted');
+	  print('Logout Form Submitted');
 
 		//set a valid CSRF token
 		setupSafeAjax();
@@ -84,12 +83,12 @@ $(document).ready(function() {
 					url:"ajax/user_logout/",
 					data: {},
 					success: function(){
-							console.log('SUCCESSFUL LOGOUT');
+							print('SUCCESSFUL LOGOUT');
 							onLogout();
 					},
 					error: function(jqXHR, status, errorThrown) {
-							console.log('FAILED LOGOUT');
-					  	//console.log(jqXHR);
+							print('FAILED LOGOUT');
+					  	//print(jqXHR);
 					},
 	      });
 	});
@@ -97,13 +96,13 @@ $(document).ready(function() {
 
 	//What happens wehn the 'New Sticky' button is pressed
 	$('#id_add_sticky_button').on('click', function(e) {
-		console.log("Add Sticky button clicked");
+		print("Add Sticky button clicked");
 		createStickynote(true, chooseRandomStickyColour()); //!!!
 	});
 
 	//update the grid each time the user zooms in or out
 	$(window).resize(function() {
-	  //console.log("Screen size changed!");
+	  //print("Screen size changed!");
 	   calculateGridSize();
 	});
 
@@ -129,7 +128,7 @@ $(document).ready(function() {
 
 	//What happens when the 'Delete Sticky' option is clicked
 	$('#id_sticky_options_delete_sticky').on('click', function(e) {
-		console.log("Deleting sticky " + iSelectedSticky);
+		print("Deleting sticky " + iSelectedSticky);
 		deleteStickynote(iSelectedSticky-1, true);
 		bAddStickyPopupIsActive = false;
 		$('#id_popup_add_sticky').stop().fadeOut();
@@ -149,6 +148,10 @@ $(document).ready(function() {
 	//display the correct login stuff upon load
 	checkLoginPageLoadAJAX();
 });
+
+function print(str){
+	//console.log(str);
+}
 
 let bIsLoggedIn = false; //whether the user is logged in
 let iNumMaxColStickies = 1; //updated in calculateGridSize();
@@ -175,7 +178,7 @@ function calculateGridSize() {
 
 		sColSize = sColSize.slice(0,sColSize.search("px"));
 		const iColSize = parseInt(sColSize);
-		console.log("Width: " + iWidth + " | colSize: " + iColSize);
+		print("Width: " + iWidth + " | colSize: " + iColSize);
 
 		//set the number of columns dynamically based on screen size:
 		const iNumColumns = Math.floor(iWidth/iColSize);
@@ -187,13 +190,13 @@ function calculateGridSize() {
 		$('.stickyNotesGrid').css("grid-row-gap",iGapSize + "px");
 		$('.stickyNotesGrid').css("padding","0px " + iGapSize + "px");
 
-		//console.log($('.stickyNotesGrid').css("grid-column-gap"));
-		//console.log("ColGap: " + iGapSize + " | RowGap: " + iGapSize + " | Padding: " + iGapSize);
+		//print($('.stickyNotesGrid').css("grid-column-gap"));
+		//print("ColGap: " + iGapSize + " | RowGap: " + iGapSize + " | Padding: " + iGapSize);
 
-		//console.log("New Number of Columns (min 1): "+iNumColumns);
+		//print("New Number of Columns (min 1): "+iNumColumns);
 		$('.stickyNotesGrid').css("grid-template-columns","repeat( " + (iNumColumns > 0 ? iNumColumns : 1) + ","+ sColSize +"px)");
 		iNumMaxColStickies = iNumColumns;
-		console.log("Screen size updated");
+		print("Screen size updated");
 	}
 
 }
@@ -261,12 +264,12 @@ $(window).on('StickyColoursRetrieved', function (e) {
 
 		//cache the data so that it can be used later
 		tStickyColours = [];
-		//console.log(e.state)
+		//print(e.state)
 		for (index in e.state) {
-			//console.log(sColour)
+			//print(sColour)
 			tStickyColours[e.state[index][0]] = [e.state[index][1], e.state[index][2], e.state[index][3], e.state[index][4]]
 		}
-		console.log(tStickyColours);
+		print(tStickyColours);
 
 		if (!bRandomAddStickyColourChosen){
 			//randomizes the colour of the 'Add sticky'-sticky (only do this once upon page load)
@@ -319,7 +322,7 @@ function retrieveStickyColoursAJAX(func) {
 	    }
 	});
 }
-//retrieveStickyColoursAJAX(function(data){console.log(data)});
+//retrieveStickyColoursAJAX(function(data){print(data)});
 
 function saveStickynoteAJAX(table, onSuccess) {
 	//set a valid CSRF token
@@ -333,12 +336,12 @@ function saveStickynoteAJAX(table, onSuccess) {
 							'stickydata[]': table,
 							},
 				success: function(){
-						console.log('SUCCESSFUL UPLOAD');
+						print('SUCCESSFUL UPLOAD');
 						onSuccess();
 				},
 				error: function(jqXHR, status, errorThrown) {
-						console.log('FAILED UPLOAD');
-						//console.log(jqXHR);
+						print('FAILED UPLOAD');
+						//print(jqXHR);
 				},
 			});
 }
@@ -352,12 +355,12 @@ function retrieveColourRGBAJAX(sColour,func) {
 			type: 'GET',
 	    dataType: 'json',
 	    success: function (data) {
-					//console.log(data)
+					//print(data)
 					func(sColour,data.r,data.g,data.b);
 	    }
 	});
 }
-//retrieveColourRGBAJAX('blue',function(data){console.log(data.b)})
+//retrieveColourRGBAJAX('blue',function(data){print(data.b)})
 */
 
 /*
@@ -369,12 +372,12 @@ function retrieveRandomColourAJAX(func) {
 			type: 'GET',
 	    dataType: 'json',
 	    success: function (data) {
-					console.log(data)
+					print(data)
 					func(data.colour,data.r,data.g,data.b);
 	    }
 	});
 }
-//retrieveRandomColourAJAX(function(data){console.log(data.colour)})
+//retrieveRandomColourAJAX(function(data){print(data.colour)})
 */
 
 
@@ -412,7 +415,7 @@ function createStickynote(bOpensEditor, iColour){
 function saveStickynote(iRandomStickyColour, sTitle, sContents) {
 	//do some extra stuff if a new sticky was created
 	if (iSelectedSticky == 0){
-		console.log("Sticky Added")
+		print("Sticky Added")
 		iRandomStickyColour = iNewStickyColour;
 		//create a sticky obj
 		let pSticky = new Stickynote(iRandomStickyColour, sTitle, sContents, -1);
@@ -424,7 +427,7 @@ function saveStickynote(iRandomStickyColour, sTitle, sContents) {
 		//Add an onclick-listener
 		const temp = tStickies.length; //tStickies is a global variable, but we want the listener to always return the value this global had upon DECLARATION of the listener!
 		$('.sticky_div:eq(-1)').on('click', function(e) {
-			console.log('Existing Sticky Clicked: ' + temp);
+			print('Existing Sticky Clicked: ' + temp);
 			iSelectedSticky = temp;
 			openStickyEditor();
 		});
@@ -432,9 +435,9 @@ function saveStickynote(iRandomStickyColour, sTitle, sContents) {
 		iSelectedSticky = tStickies.length;
 
 		//debug in the console:
-		console.log("New sticky added: ");
+		print("New sticky added: ");
 	}else{
-		console.log("Updating sticky " + iSelectedSticky);
+		print("Updating sticky " + iSelectedSticky);
 	}
 
 	//update the object
@@ -469,7 +472,7 @@ function saveStickynote(iRandomStickyColour, sTitle, sContents) {
 
 //what happens when the 'cancel' button is pressed in the sticky note editor
 function cancelStickynote(){
-	console.log("Changes discarded");
+	print("Changes discarded");
 	$('.stickyNotesGrid div').remove('.new_sticky'); //remove newly created stickies (or save no data if a sticky was edited)
 	//no need to update or sort here
 }
@@ -486,14 +489,14 @@ function updateStickynote(i){
 
 //deletes the stickynote at index i;
 function deleteStickynote(i, bFromDB){
-	console.log("Sticky " + tStickies[i].title + "(" + i + ") has been deleted...")
+	print("Sticky " + tStickies[i].title + "(" + i + ") has been deleted...")
 	const id = tStickies[i].id;
 	tStickies[i] = tStickies[tStickies.length-1]; //put the last element in its place (so we don't fck up the onclicklisteners)
 	tStickies.pop(); //delete the data from the array
 	$('.stickyNotesGrid div').remove(".sticky_div:eq(-1)") //delete the sticky from the screen
 
 	if (bFromDB && bIsLoggedIn){
-		console.log('attempting to delete sticky from DB')
+		print('attempting to delete sticky from DB')
 
 		//set a valid CSRF token
 		setupSafeAjax();
@@ -504,11 +507,11 @@ function deleteStickynote(i, bFromDB){
 					url:"ajax/delete_sticky_by_id/",
 					data: {	'id': id} ,
 					success: function(){
-							console.log('SUCCESSFUL DELETE');
+							print('SUCCESSFUL DELETE');
 					},
 					error: function(jqXHR, status, errorThrown) {
-							console.log('FAILED DELETE');
-							//console.log(jqXHR);
+							print('FAILED DELETE');
+							//print(jqXHR);
 					},
 				});
 	}
@@ -533,8 +536,8 @@ function sortStickies() {
 	for (i = 0; i<tStickies.length; i++) {
 		updateStickynote(i);
 	}
-	console.log("SORTED: ");
-	console.log(JSON.parse(JSON.stringify(tStickies)));
+	print("SORTED: ");
+	print(JSON.parse(JSON.stringify(tStickies)));
 }
 
 //sort function for sorting the sticky array
@@ -563,7 +566,7 @@ function isAlreadyDisplayed(iID){
 //stickynote editor:
 
 function openStickyEditor(){
-	console.log('STICKY EDITOR OPENED UP... (' + iSelectedSticky + ')');
+	print('STICKY EDITOR OPENED UP... (' + iSelectedSticky + ')');
 	if (iSelectedSticky == 0){
 		//Newly created sticky (I.e. No data yet, so empty all the fields)
 		$("#id_popup_add_sticky input[name=title]").val("");
@@ -571,7 +574,7 @@ function openStickyEditor(){
 		$(".popup_title").text("Create Sticky");
 	}else{
 		//existing sticky that the user wants to edit, so retrieve all the fields
-		console.log(tStickies[iSelectedSticky-1]);
+		print(tStickies[iSelectedSticky-1]);
 		let pSelectedSticky = tStickies[iSelectedSticky-1];
 		$("#id_popup_add_sticky input[name=title]").val(pSelectedSticky.title);
 		quill.setContents(JSON.parse(pSelectedSticky.contents));
@@ -598,7 +601,7 @@ const iOptionElementTextColourModifier = 0.75; //the text-colour gets the dark v
 //Updates the Editor's Colours:
 function updateEditorColours(iColour){
 	sColour = tStickyColours[iColour][0]
-	console.log("Updating editor colours: " + sColour /*+ "(" + r + "," + g + "," + b + ")"*/);
+	print("Updating editor colours: " + sColour /*+ "(" + r + "," + g + "," + b + ")"*/);
 
 	//set the correct checkbox:
 	//MOVED TO initColourList!
@@ -642,7 +645,7 @@ function initColourList(data){
 
 		const temp = colourlist[i][0];
 		$("#id_sticky_options_form_colour label:eq(" + i + ")").on('click', function(e) {
-			console.log('Sticky Colour Changed: ' + temp);
+			print('Sticky Colour Changed: ' + temp);
 			iNewStickyColour = temp;
 			updateEditorColours(temp);
 		});
@@ -738,7 +741,7 @@ function retrieveCurrentUserStickies(){
 							//Add an onclick-listener
 							const temp = tStickies.length; //tStickies is a global variable, but we want the listener to always return the value this global had upon DECLARATION of the listener!
 							$('.sticky_div:eq(-1)').on('click', function(e) {
-								console.log('Existing Sticky Clicked: ' + temp);
+								print('Existing Sticky Clicked: ' + temp);
 								iSelectedSticky = temp;
 								openStickyEditor();
 							});
@@ -762,7 +765,7 @@ function checkLoginPageLoadAJAX(){
 	    success: function (data) {
 					bIsLoggedIn = data.authenticated;
 					if (bIsLoggedIn) {
-						console.log('USER WAS ALREADY LOGGED IN FROM A PREVIOUS SESSION!');
+						print('USER WAS ALREADY LOGGED IN FROM A PREVIOUS SESSION!');
 						onLogin();
 					}
 	    }

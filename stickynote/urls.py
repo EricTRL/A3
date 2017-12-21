@@ -2,6 +2,7 @@ from django.urls import path, include
 from . import views
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from rest_framework.urlpatterns import format_suffix_patterns #REST API
 
 
 urlpatterns = [
@@ -15,4 +16,15 @@ urlpatterns = [
     path('ajax/delete_sticky_by_id/', views.delete_sticky_by_id, name='delete_sticky_by_id'),
     path('ajax/create_stickies/', views.create_stickies, name='create_stickies'),
     path('ajax/user_is_authenticated/', views.user_is_authenticated, name='user_is_authenticated'),
+
+    #REST API
+    path('stickies/', views.StickynoteList.as_view()),
+    path('stickies/<int:id>/', views.StickynoteDetails.as_view()),
+    path('stickies/user/<int:author_id>/', views.StickynoteAuthorList.as_view()),
+    path('colours/', views.ColourList.as_view()),
+    path('colours/<int:id>/', views.ColourDetails.as_view()),
+    path('users/', views.UserList.as_view()),
+    path('users/<int:id>', views.UserDetails.as_view()),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
