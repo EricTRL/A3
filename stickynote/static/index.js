@@ -1,15 +1,6 @@
 //AUTHOR: 1004076
 /*Browser Compatibility:
-Versions lower than the ones specified here are probabably NOT compatible/do NOT work.
-Versions of incompatible browsers released after 6-12-2017 may become compatible in the future once CSS Grid properties are implemented in those browsers
-Desktop Browsers:
-	Works on: 								Chrome (v57+), iOS Safari (v10.3+), Steam Web Browser (v017), Edge (v16+), Firefox (v52+),
-	Doesn't work on: 						IE, Opera Mini
-	Presumably works on (but not tested): 	Opera (v47+),
-Mobile Browsers:
-	Works on: 								Android webview (v62+), Chrome for Android (v62+), Samsung Internet (v62+), Firefox for Android (v57+)
-	Doesn't work on:						IE Mobile, Opera Mobile, Blackberry Browser
-	Presumably works on (but not tested):	-
+TODO
 */
 
 $(document).ready(function() {
