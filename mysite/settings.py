@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'stickynote',
     'rest_framework',
+    'accounts',
 ]
 
 MIDDLEWARE = [

@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from rest_framework.urlpatterns import format_suffix_patterns #REST API
 
+app_name = "stickynote"
 
 urlpatterns = [
     path('', views.page_load, name='page_load'),

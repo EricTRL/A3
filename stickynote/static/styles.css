@@ -20,7 +20,7 @@ body {
 nav {
   color: #EFEFEF;
   margin: 4px 4px 0px 4px;
-	margin-bottom: 0px !important; /*bootstrap wanted change things up again*/
+	margin-bottom: 0px !important; /*bootstrap wanted to change things up again*/
 }
   nav div {
 		background-color: #666667;
@@ -315,3 +315,67 @@ nav {
 	border-style: solid;
  */
 }
+
+/*=====================================================================================*/
+/*Signup form (made by Robin): */
+
+ul.signup-req {
+	font-size: 16px;
+}
+
+ul.errorlist {
+	font-size: 20px;
+	color: red;
+}
+.fieldWrapper {
+	margin-bottom: 10px;
+}
+
+.signup-wrapper {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-left: 5px;
+	border-radius: 15px;
+	/* Lines below are for the background of the box. Opacity is set if RGBa is supported. */
+	/* Fallback for web browsers that doesn't support RGBa */
+    background: rgb(231, 227, 227);
+    /* RGBa with 0.6 opacity */
+    background: rgba(231, 227, 227, 0.6);
+}
+
+/* For the logout buttons in the base html */
+.logout-button {
+	display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+span.show-login-name {
+    display: block;
+    padding: 3px 19px;
+    clear: both;
+    font-weight: 600;
+    line-height: 1.42857143;
+    color: red;
+    white-space: nowrap;
+    /* To make the top option stand out as not pressable (as it is not pressable) */
+    margin: -5px 1px 0px 1px;
+    background: rgb(223, 203, 168);
+ }
+ .dropdown-menu {
+ 	background-color: rgb(231, 227, 227) !important;
+ 	background-color: rgba(231, 227, 227, 0.9) !important;
+ 	font-size: 16px !important;
+ }
+
+ .dropdown {
+ 	padding: 0;
+ }
+
+ .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+ 	color: #333 !important;
+ 	padding: 3px 20px;
+ }

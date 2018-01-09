@@ -1,0 +1,45 @@
+{% extends 'stickynote/base.html' %}
+
+{% block content %}
+<div class="content container">
+    <div class="row">
+        <div class="col-md-8 signup-wrapper">
+		    <h1>Signup</h1>
+		    <form method="POST" class="signup-form" >{% csrf_token %}
+		    	<div class="fieldWrapper">
+			        {{ form.username.errors }}
+			        {{ form.username.label_tag }}
+			        <br/>
+			        {{ form.username }}
+		        </div>
+		        <div class="fieldWrapper">
+		        	<ul class="signup-req">
+			        	<li>150 characters or fewer. Letters, digits and @/./+/-/_ only.</li>
+					</ul>
+			    </div>
+		        <div class="fieldWrapper">
+			        {{ form.password1.errors }}
+			        {{ form.password1.label_tag }}
+			        <br/>
+			        {{ form.password1 }}
+			    </div>
+		        <div class="fieldWrapper">
+			        <ul class="signup-req">
+			        	<li>Your password can't be too similar to your other personal information.</li>
+						<li>Your password must contain at least 8 characters.</li>
+						<li>Your password can't be a commonly used password.</li>
+						<li>Your password can't be entirely numeric.</li>
+					</ul>
+				</div>
+				<div class="fieldWrapper">
+			        {{ form.password2.errors }}
+			        {{ form.password2.label_tag }}
+			        <br/>
+			        {{ form.password2 }}
+			    </div>
+		        <button type="submit" class="save btn btn-default">Signup</button>
+		    </form>
+		</div>
+    </div>
+</div>
+{% endblock %}
