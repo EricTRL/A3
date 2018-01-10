@@ -1,0 +1,22 @@
+{% extends 'stickynote/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<div class='signup-wrapper container'>
+	<div class='first_name'>
+		<h4>First Name:</h4>
+	  {{ request.user.first_name }}
+	</div>
+	
+	<div class='last_name'>
+		<h4>Last Name:</h4>
+		{{ request.user.last_name }}
+	</div>
+	<div class='edit-profile'>
+		<a class="btn btn-primary" id='edit-profile-button' href="{% url 'accounts:edit_profile' %}">Edit Profile  <span class="glyphicon glyphicon-pencil"></span></a>
+	</div>
+	<div class='password'>
+		<a class="btn btn-danger" id='change-password-button' href="{% url 'accounts:change_password' %}">Change Password</a>
+    </div>
+</div>
+{% endblock %}

@@ -324,7 +324,7 @@ ul.signup-req {
 }
 
 ul.errorlist {
-	font-size: 20px;
+	font-size: 18px;
 	color: red;
 }
 .fieldWrapper {
@@ -378,4 +378,25 @@ span.show-login-name {
  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
  	color: #333 !important;
  	padding: 3px 20px;
+ }
+
+ .helptext > ul > li {
+ 	font-size: 16px;
+ }
+
+ .messages {
+ 	padding: 0px;
+ 	margin: 2px 5px;
+ 	font-size: 18px;
+ 	list-style-type: none;
+ }
+
+ .alert-error {
+ 	background-color: #f2dede;
+ 	border-color: #ebcccc;
+ 	color: #a94442;
+ }
+
+ .edit-profile {
+ 	padding-top: 10px;
  }

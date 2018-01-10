@@ -37,6 +37,20 @@
 			        <br/>
 			        {{ form.password2 }}
 			    </div>
+
+			    <div class="fieldWrapper">
+			        {{ form.first_name.errors }}
+			        {{ form.first_name.label_tag }}
+			        <br/>
+			        {{ form.first_name }}
+		        </div>
+
+		        <div class="fieldWrapper">
+			        {{ form.last_name.errors }}
+			        {{ form.last_name.label_tag }}
+			        <br/>
+			        {{ form.last_name }}
+		        </div>
 		        <button type="submit" class="save btn btn-default">Signup</button>
 		    </form>
 		</div>

@@ -68,6 +68,7 @@
 		    <span class="caret"></span></button>
 		    <ul class="dropdown-menu">
 		      <li><a href="#" class="show-login-name">Logged in as <strong>{{ user.username }}</strong></a></li>
+		      <li><a href="{% url 'accounts:profile' %}">Show Profile</a></li>
 		      <li>
 		        <form method="POST" class="logout-button" action="{% url 'accounts:logout' %}" >
 		          {% csrf_token %}
@@ -124,6 +125,14 @@
       </form>
     </div>
   </div>
+
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   {% block content %}
   {% endblock %}
