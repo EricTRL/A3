@@ -4,10 +4,13 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 #Stickynote entry (yes, most of this is unused (or not displayed to the user), though it could be used in A3)
 class Stickynote(models.Model):
+    #1-to-many relation with a Group (which has an author field), so it's not neccesary here
+    '''
     author = models.ForeignKey(
             'auth.User',
             on_delete=models.CASCADE,
             )
+    '''
     title = models.CharField(max_length=200)
     contents = models.TextField()
     created_date = models.DateTimeField(
@@ -19,14 +22,14 @@ class Stickynote(models.Model):
             on_delete=models.CASCADE,
             )
     group = models.ForeignKey(
-            'StickyGroup',
+            'Group',
             on_delete=models.CASCADE,
             default = 1,
     )
     shared = models.BooleanField()
 
     def create(self):
-        self.published_date = timezone.now()
+        self.created_date = timezone.now()
         self.save()
 
     def save_edits(self):
@@ -55,12 +58,16 @@ class Colour(models.Model):
             default=255,
             validators=[MaxValueValidator(255), MinValueValidator(0)],
     )
+    filename = models.CharField(
+            default = "stickynote_yellow.png", #files must be locaeted in STATIC/Images/
+            max_length = 40,
+    )
 
     def __str__(self):
         return self.name
 
 #Friends
-class Friends(models.Model):
+class Friend(models.Model):
     user1 = models.ForeignKey( #the one who took the initiative to make a request
             'auth.User',
             on_delete=models.CASCADE,
@@ -74,7 +81,7 @@ class Friends(models.Model):
     accepted = models.BooleanField(default=False) #whether the request has been accepted
 
 #Collaboraters (I.e. those who can view AND edit a specific stickynote)
-class Sticky_Collaboraters(models.Model):
+class Collaborator(models.Model):
     user = models.ForeignKey(
             'auth.User',
             on_delete=models.CASCADE,
@@ -83,11 +90,11 @@ class Sticky_Collaboraters(models.Model):
             'Stickynote',
             on_delete=models.CASCADE,
             )
-    viewOnly = models.BooleanField(default=True)
+    viewOnly = models.BooleanField(default=True) #Add specific people that can view your sticky as opposed to all your friends
     hidden = models.BooleanField(default=False) #allow hidden collaboraters (only the author of the sticky can view hidden collaboraters)
 
 #Stickynote Group Entry
-class StickyGroup(models.Model):
+class Group(models.Model):
     author = models.ForeignKey(
             'auth.User',
             on_delete=models.CASCADE,
@@ -101,7 +108,7 @@ class StickyGroup(models.Model):
     cannotBeDeleted = models.BooleanField(default=False)
 
     def create(self):
-        self.published_date = timezone.now()
+        self.created_date = timezone.now()
         self.save()
 
     def save_edits(self):
@@ -109,4 +116,4 @@ class StickyGroup(models.Model):
         self.save()
 
     def __str__(self):
-        return self.title
+        return (self.title + " (" + self.author.username + ")")

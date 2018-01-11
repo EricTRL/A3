@@ -1,4 +1,5 @@
 {% load staticfiles %}
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -14,6 +15,8 @@
   <link href="{% static 'Bootstrap/bootstrap-modal-bs3patch.css' %}" rel="stylesheet">
   <link href="{% static 'Bootstrap/bootstrap3-modal.css' %}" rel="stylesheet">
 
+  <!-- To prevent favicon missing error -->
+  <link rel="shortcut icon" href="">
 <body>
   <!-- Navigation -->
   <nav id="id_navbar" class="navbar navbar-default navbar-static-top">
@@ -33,20 +36,63 @@
           <span class="icon-bar"></span>
         </button>
       </div>
+
+      <!--
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li id="asdf" class="clickable"><a id="id_login_button" href="#">LOGIN</a></li>
         </ul>
-        <!--
-    		<div id="id_div_login">
-    			<span id="id_login_button" class="clickable">LOGIN</span>
-    		</div>
-        -->
       </div>
+      -->
+      <div id="navbar" class="navbar-collapse collapse">
+       <ul class="nav navbar-nav">
+         <li><a href="{% url 'stickynote:page_load' %}">Home</a></li>
+         <li><a href="#">Friend_Menu_Placeholder</a></li>
+       </ul>
+
+
+      <!-- Logout Form for new authentication system -->
+   		{% if user.is_authenticated %}
+     		<div class="nav navbar-nav navbar-right">
+     		  <div class="dropdown">
+     		   	<button class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">Account
+     		    <span class="caret"></span></button>
+     		    <ul class="dropdown-menu">
+     		      <li><a href="#" class="show-login-name">Logged in as <strong>{{ user.username }}</strong></a></li>
+              <li><a href="{% url 'accounts:profile' %}">Show Profile</a></li>
+              <li>
+     		        <form method="POST" class="logout-button" action="{% url 'accounts:logout' %}" >
+     		          {% csrf_token %}
+     		          <button type="submit" class="btn btn-danger">Logout</button>
+     		        </form>
+     		      </li>
+     		    </ul>
+     		  </div>
+     		</div>
+   		{% endif %}
+
+   		<!-- Login Form for new authentication system -->
+   		{% if user.is_anonymous %}
+     		<div class="nav navbar-nav navbar-right">
+     		  <div class="dropdown">
+     		    <button class="btn btn-primary btn-lg dropdown-toggle" type="button" data-toggle="dropdown">Account
+     		    <span class="caret"></span></button>
+     		    <ul class="dropdown-menu">
+     		      <li><span class="show-login-name">Not logged in</span></li>
+     		      <li><a href="{% url 'accounts:login' %}">Log in</a></li>
+     		      <li><a href="{% url 'accounts:signup' %}">Sign up</a></li>
+     		    </ul>
+     		  </div>
+     		</div>
+   		{% endif %}
+   	  </div>
     </div>
   </nav>
 
-  <!-- Login Form -->
+
+
+
+  <!-- Login Form (old) -->
   <div id='id_dropdown_login' class='login-form hidden_elem'>
     <div class=''>
       <form id="id_login_form" method="POST">
@@ -60,7 +106,7 @@
       </form>
     </div>
   </div>
-  <!--Logout form-->
+  <!--Logout form (old)-->
   <div id="id_dropdown_logout" class='login-form hidden_elem'>
     <div class=''>
       <form id="id_logout_form">
@@ -69,6 +115,14 @@
       </form>
     </div>
   </div>
+
+  {% if messages %}
+    <ul class="messages">
+     {% for message in messages %}
+      <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
+     {% endfor %}
+    </ul>
+  {% endif %}
 
   {% block content %}
   {% endblock %}

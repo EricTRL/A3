@@ -20,7 +20,7 @@ body {
 nav {
   color: #EFEFEF;
   margin: 4px 4px 0px 4px;
-	margin-bottom: 0px !important; /*bootstrap wanted change things up again*/
+	margin-bottom: 0px !important; /*bootstrap wanted to change things up again*/
 }
   nav div {
 		background-color: #666667;
@@ -109,7 +109,7 @@ nav {
 
 .stickyNotesGrid {
 	display: grid;
-	grid-template-columns: 200px;
+	grid-template-columns: 200px 200px 200px 200px; /*Having rows that do not fit initially (before updated in JS) looks better than only having a single row*/
 	grid-template-rows: 200px;
 	margin: 44px 4px;
 	grid-auto-rows: 200px;
@@ -314,4 +314,116 @@ nav {
 	border-color: black;
 	border-style: solid;
  */
+}
+
+/*=====================================================================================*/
+/*Signup form (made by Robin): */
+
+ul.signup-req {
+	font-size: 16px;
+	padding-bottom: 5px;
+}
+
+ul.errorlist {
+	font-size: 18px;
+	color: red;
+}
+
+.signup-wrapper {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-left: 5px;
+	border-radius: 15px;
+	/* Lines below are for the background of the box. Opacity is set if RGBa is supported. */
+	/* Fallback for web browsers that doesn't support RGBa */
+    background: rgb(231, 227, 227);
+    /* RGBa with 0.6 opacity */
+    background: rgba(231, 227, 227, 0.6);
+}
+
+/* For the logout buttons in the base html */
+.logout-button {
+	display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+span.show-login-name {
+    display: block;
+    padding: 3px 19px;
+    clear: both;
+    font-weight: 600;
+    line-height: 1.42857143;
+    color: red;
+    white-space: nowrap;
+    /* To make the top option stand out as not pressable (as it is not pressable) */
+    margin: -5px 1px 0px 1px;
+    background: rgb(223, 203, 168);
+ }
+ .dropdown-menu {
+ 	background-color: rgb(231, 227, 227) !important;
+ 	background-color: rgba(231, 227, 227, 0.9) !important;
+ 	font-size: 16px !important;
+ }
+
+ .dropdown {
+ 	padding: 0;
+ }
+
+ .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+ 	color: #333 !important;
+ 	padding: 3px 20px;
+ }
+
+ .helptext > ul > li {
+ 	font-size: 16px;
+ }
+
+ .messages {
+ 	padding: 0px;
+ 	margin: 2px 5px;
+ 	font-size: 18px;
+ 	list-style-type: none;
+ }
+
+ .alert-error {
+ 	background-color: #f2dede;
+ 	border-color: #ebcccc;
+ 	color: #a94442;
+ }
+
+ .edit-profile {
+ 	padding-top: 10px;
+ }
+
+ .current-first-name {
+ 	font-size: 22px;
+ }
+
+ .current-last-name {
+ 	font-size: 22px;
+ }
+
+ .profile-title {
+ 	color: #666667;
+ }
+
+ .profile-username {
+ 	color: #337ab7;
+ }
+
+ .save-profile-edit {
+ 	margin-top: 20px;
+ }
+
+ .fieldWrapper {
+ 	padding-top: 10px;
+	margin-bottom: 10px;
+}
+
+.fieldWrapper-extraspace {
+	padding-top: 30px;
 }

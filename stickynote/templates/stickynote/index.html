@@ -1,18 +1,43 @@
 {% extends 'stickynote/base.html' %}
 {% load staticfiles %}
+{% load static %}
 
 {% block content %}
-  <!--StickyNotes grid (not actually a grid anymore after implementing bootstrap):-->
-  <div class="stickyNotesGrid">
-  	<div class="sticky_div">
-  		<div class='clickable' id="id_add_sticky_button">
-  			<img class='sticky_img sticky_elem' src="{% static 'Images/stickynote_yellow.png' %}"/>
-  			<img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
-  			<p class='add_sticky_text sticky_elem'>Add Sticky</p>
-  		</div>
-  	</div>
-  	<!--Actual stickynote data is added dynamically-->
+  <!--static path-->
+  <div id="STATICPATH" style="display:none">{% get_static_prefix %}</div>
+
+
+  {% if user.is_authenticated %}
+      <p>Logged in</p>
+    {%else%}
+      <p>NOT logged in</p>
+    {%endif%}
+
+
+  {% for group in groups %}
+    <div class="stickyNotesGrid">
+      <div class="sticky_div">
+        <div class='clickable group' id="group_{{group.id}}">
+          <img class='sticky_img sticky_add_img sticky_elem' src="{% static 'Images/stickynote_yellow.png' %}"/>
+          <img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
+          <p class='add_sticky_text sticky_elem'>Add Sticky</p>
+        </div>
+      </div>
+    {% for sticky in stickies %}
+      <!--matching groups-->
+      {% if sticky.group_id == group.id %}
+        <div class="sticky_data sticky_div">
+          <div class="stickynote clickable" id=sticky_{{sticky.id}}>
+              <img class="sticky_img sticky_elem" src="{% get_static_prefix %}Images/stickynote_{{ sticky.colour|lower }}.png">
+              <p class="add_sticky_text sticky_elem">{{sticky.title}}</p>
+              <!--TODO: Add stickynote contents here as well-->
+            </div>
+        </div>
+      {% endif %}
+    {% endfor %}
   </div>
+  {% endfor %}
+
 
   <!--Stickynote creation/edit screen-->
   <div class="popup popup_elem hidden_elem" id="id_popup_add_sticky">
@@ -24,7 +49,13 @@
   		<div id="id_sticky_options" class="col-xs-12 col-md-4">
   			<form id="id_sticky_options_form_colour" class="sticky_option_element">
   				<h3>Sticky Colour:</h3>
-  				<!--Form is populated dynamically-->
+          {% for colour in colours %}
+            <div id="colour_{{colour.id}}" class="colour_option">
+              <label class="clickable f" style="color:rgba({{colour.r}},{{colour.g}},{{colour.b}},{{colour.a}});">
+                <input type="radio" class="clickable" name="colour" value="{{colour.id}}"/><strong>{{colour.name|upper}}</strong>
+              </label>
+            </div>
+          {% endfor %}
   			</form>
   			<div id="id_sticky_options_delete_sticky" class="sticky_option_element edit_only clickable">
   				<div>
