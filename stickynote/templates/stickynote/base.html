@@ -55,8 +55,10 @@
 
       <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="{% url 'stickynote:page_load' %}">Home</a></li>
+      	{% with url_name=request.resolver_match.url_name %}
+        <li{% if url_name == 'page_load' %} class="active"{% endif %}><a href="{% url 'stickynote:page_load' %}">Home</a></li>
         <li><a href="#">Friend_Menu_Placeholder</a></li>
+        {% endwith %}
       </ul>
 
 
