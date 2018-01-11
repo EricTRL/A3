@@ -40,7 +40,6 @@ INSTALLED_APPS = [
 	'stickynote',
     'accounts',
     'rest_framework',
-    'accounts',
 ]
 
 MIDDLEWARE = [
