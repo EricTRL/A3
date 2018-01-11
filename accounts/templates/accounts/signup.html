@@ -4,7 +4,8 @@
 <div class="content container">
     <div class="row">
         <div class="col-md-8 signup-wrapper">
-		    <h1>Signup</h1>
+		    <h1>Sign up</h1>
+		    <hr>
 		    <form method="POST" class="signup-form" >{% csrf_token %}
 		    	<div class="fieldWrapper">
 			        {{ form.username.errors }}

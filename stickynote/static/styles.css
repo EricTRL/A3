@@ -400,3 +400,27 @@ span.show-login-name {
  .edit-profile {
  	padding-top: 10px;
  }
+
+ .current-first-name {
+ 	font-size: 22px;
+ }
+
+ .current-last-name {
+ 	font-size: 22px;
+ }
+
+ .profile-title {
+ 	color: #666667;
+ }
+
+ .profile-username {
+ 	color: #337ab7;
+ }
+
+ .save-profile-edit {
+ 	margin-top: 20px;
+ }
+
+ .fieldWrapper {
+ 	padding-top: 10px;
+ }

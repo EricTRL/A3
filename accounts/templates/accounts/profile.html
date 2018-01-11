@@ -3,20 +3,28 @@
 
 {% block content %}
 <div class='signup-wrapper container'>
-	<div class='first_name'>
-		<h4>First Name:</h4>
-	  {{ request.user.first_name }}
-	</div>
+	<h1>Profile of user <span class='profile-username'><strong>{{ request.user.username }}</strong></span></h1>
+	<hr>
+	<div class='current-first-name'>
+      <span class='profile-title'>First Name:</span> &emsp;
+      {% if request.user.first_name|length > 0 %}
+	    {{ request.user.first_name }}
+	  {% else %}
+	    <i>first name is not set</i>
+	  {% endif %}
+    </div>
 	
-	<div class='last_name'>
-		<h4>Last Name:</h4>
-		{{ request.user.last_name }}
+	<div class='current-last-name'>
+	  <span class='profile-title'>Last Name:</span> &emsp;
+	  {% if request.user.last_name|length > 0 %}
+	    {{ request.user.last_name }}
+	  {% else %}
+	    <i>last name is not set</i>
+	  {% endif %}
 	</div>
 	<div class='edit-profile'>
 		<a class="btn btn-primary" id='edit-profile-button' href="{% url 'accounts:edit_profile' %}">Edit Profile  <span class="glyphicon glyphicon-pencil"></span></a>
-	</div>
-	<div class='password'>
 		<a class="btn btn-danger" id='change-password-button' href="{% url 'accounts:change_password' %}">Change Password</a>
-    </div>
+	</div>
 </div>
 {% endblock %}
