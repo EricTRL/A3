@@ -6,21 +6,27 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 
 
-from accounts.forms import UpdateAccountForm
+from accounts.forms import UpdateAccountForm, FirstLastNameForm
 
 # Create your views here.
 
 def signup_view(request):
 	if request.method == "POST":
 		form = UserCreationForm(request.POST)
+		formNames = FirstLastNameForm(request.POST)
 		if form.is_valid():
-			user = form.save()
-			# log the user in here!
-			login(request, user)
-			return redirect('stickynote:page_load')
+			if formNames.is_valid():
+				user = form.save(commit=False)
+				user.first_name = formNames.cleaned_data['first_name']
+				user.last_name = formNames.cleaned_data['last_name']
+				user.save()
+				# log the user in here!
+				login(request, user)
+				return redirect('stickynote:page_load')
 	else:
 		form = UserCreationForm()
-	return render(request, 'accounts/signup.html', {'form': form})
+		formNames = FirstLastNameForm()
+	return render(request, 'accounts/signup.html', {'form': form, 'formNames': formNames})
 
 def login_view(request):
 	if request.method == "POST":

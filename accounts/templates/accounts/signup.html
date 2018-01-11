@@ -9,7 +9,7 @@
 		    <form method="POST" class="signup-form" >{% csrf_token %}
 		    	<div class="fieldWrapper">
 			        {{ form.username.errors }}
-			        {{ form.username.label_tag }}
+			        {{ form.username.label_tag }}*
 			        <br/>
 			        {{ form.username }}
 		        </div>
@@ -20,7 +20,7 @@
 			    </div>
 		        <div class="fieldWrapper">
 			        {{ form.password1.errors }}
-			        {{ form.password1.label_tag }}
+			        {{ form.password1.label_tag }}*
 			        <br/>
 			        {{ form.password1 }}
 			    </div>
@@ -34,23 +34,23 @@
 				</div>
 				<div class="fieldWrapper">
 			        {{ form.password2.errors }}
-			        {{ form.password2.label_tag }}
+			        {{ form.password2.label_tag }}*
 			        <br/>
 			        {{ form.password2 }}
 			    </div>
 
-			    <div class="fieldWrapper">
-			        {{ form.first_name.errors }}
-			        {{ form.first_name.label_tag }}
+			    <div class="fieldWrapper-extraspace">
+			        {{ formNames.first_name.errors }}
+			        {{ formNames.first_name.label_tag }}*
 			        <br/>
-			        {{ form.first_name }}
+			        {{ formNames.first_name }}
 		        </div>
 
 		        <div class="fieldWrapper">
-			        {{ form.last_name.errors }}
-			        {{ form.last_name.label_tag }}
+			        {{ formNames.last_name.errors }}
+			        {{ formNames.last_name.label_tag }}
 			        <br/>
-			        {{ form.last_name }}
+			        {{ formNames.last_name }}
 		        </div>
 		        <button type="submit" class="save btn btn-default">Signup</button>
 		    </form>
