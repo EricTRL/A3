@@ -1,0 +1,16 @@
+{% extends 'stickynote/base.html' %}
+
+{% block content %}
+<div class="content container">
+    <div class="row">
+        <div class="col-md-8 signup-wrapper">
+	        <h1>Log in</h1>
+	        <hr>
+		    <form method="POST" class="login-form-new" >{% csrf_token %}
+		        {{ form }}
+		        <button type="submit" class="save btn btn-default">Login</button>
+		    </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

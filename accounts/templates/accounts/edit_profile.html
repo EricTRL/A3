@@ -1,0 +1,32 @@
+{% extends 'stickynote/base.html' %}
+
+{% block content %}
+<div class='signup-wrapper container'>
+  <h1>Edit Profile</h1>
+  <hr>
+  <form method="POST" action="{% url 'accounts:edit_profile' %}" class="post-form">{% csrf_token %}
+  	<div class="fieldWrapper">
+  		{{ form.first_name.errors }}
+      {{ form.first_name.label_tag }} <br/>
+    	{{ form.first_name }}
+    </div>
+
+  	<div class="fieldWrapper">
+  		{{ form.last_name.errors }}
+      {{ form.last_name.label_tag }} <br/>
+      {{ form.last_name }}
+    </div>
+    <div class="fieldWrapper">
+      {{ form.username.errors }}
+      {{ form.username.label_tag }} <br/>
+      <div class='text-danger'>
+        Warning: changing the username means changing the name you log in with!
+      </div>
+      {{ form.username }}
+    </div>
+    <div class='save-profile-edit'>
+      <button type="submit" class="save btn btn-default">Save</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
