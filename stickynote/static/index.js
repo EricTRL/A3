@@ -124,9 +124,9 @@ $(document).ready(function() {
 				const sTitle = $("#id_sticky_form input[name=title]").val();
 				const sContents = JSON.stringify(quill.getContents());
 				//TODO
-				const iGroup = -1;
-				const bShared = true;
-				print(iColour)
+				const iGroup = $("#id_sticky_options_group select").val();
+				const bShared = $("#id_sticky_options_shared input[name=shared]").prop('checked');
+				//print(iColour)
 				set_or_create_sticky_by_id(iLastSelectedSticky, sTitle, sContents, iColour, iGroup, bShared, function(){
 					bAddStickyPopupIsActive = false;
 					$('#id_popup_add_sticky').stop().fadeOut();
@@ -322,6 +322,13 @@ function openStickyEditor(iID, bAppendNewSticky){
 				//Set the correct Radio Button
 				$('#colour_' + data.colour_id + ' input[name=colour]').prop('checked', true);
 
+				//Set the shared-checkbox
+				$("#id_sticky_options_shared input[name=shared]").prop('checked',data.shared)
+
+				//Set the group-Dropdown
+				$("#id_sticky_options_group select").val(data.group_id);
+
+
 				//If that all has been done, we can finally actually open the editor
 				bAddStickyPopupIsActive = true;
 				$('#id_popup_add_sticky').stop().fadeIn();
@@ -352,11 +359,16 @@ function UpdateEditorColours(iR, iG, iB, iA, sFileName){
 	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("background-color",	"rgba(" + Math.round(iR + (255-iR)*iOptionElementColourModifier) + ", " + Math.round(iG + (255-iG)*iOptionElementColourModifier) + ", " + Math.round(iB + (255-iB)*iOptionElementColourModifier) + ", " + iA + ")");
 	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("border-color",			"rgba(" + Math.round(iR*iOptionElementBorderColourModifier) + ", " + Math.round(iG*iOptionElementBorderColourModifier) + ", " + Math.round(iB*iOptionElementBorderColourModifier) + ", " + iA + ")");
 	$('.popup .sticky_edit .body #id_sticky_options h3').css("color",					"rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options option').css("color",			"rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options select').css("color",			"rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options #id_sticky_options_shared label').css("color", "rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+
 	//$('.popup .sticky_edit .body #id_sticky_options label').css("color","rgb(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
 }
 
 
 function updateEditorOptions(bNewSticky){
+	//Hide the option elements that can only be used in edit-mode
 	if (bNewSticky){
 		$('.edit_only').hide();
 	}else{

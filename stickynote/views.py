@@ -102,9 +102,9 @@ def set_or_create_sticky_by_id(request, *args, **kwargs):
 
             pSticky.title = sTitle;
             pSticky.contents = sContents;
-            pSticky.colour = iColour;
-            #pSticky.group = iGroup;
-            #pSticky.shared = bShared; TODO
+            pSticky.colour = Colour.objects.get(id=iColour);
+            pSticky.group = Group.objects.get(id=iGroup);
+            pSticky.shared = bShared;
             pSticky.last_edit_date = timezone.now()
 
             pSticky.save()
@@ -147,29 +147,6 @@ def get_random_colour(request):
 
 
 '''
-#Retrieves all the stickies of the currently logged in User
-def user_stickies(request):
-    iUser = request.user
-    if iUser.is_authenticated:
-        print("Authenticated User: " + iUser.first_name)
-        #retrieve the Sticky Notes of the currently logged in User
-        tStickies = Stickynote.objects.filter(author=request.user).order_by('title')
-    else:
-        print('Non-logged in User!')
-        tStickies = []
-    return render(request, 'stickynote/index.html', {'stickies': tStickies})
-
-
-#returns true if a user with the given username exists
-#returns false otherwise
-def validate_username(request):
-    username = request.GET.get('username', None)
-    data = {
-        'is_taken': User.objects.filter(username__iexact=username).exists()
-    }
-    return JsonResponse(data)
-'''
-
 #Get all stickynote colours (and their RGB-values from the DB)
 def retrieve_sticky_colours(request):
     #create an empty array
@@ -179,7 +156,7 @@ def retrieve_sticky_colours(request):
         colourlist.append([colour.id, colour.name.lower(), colour.r, colour.g, colour.b, colour.a/255]);
     print(colourlist)
     return JsonResponse({"colourlist": colourlist})
-
+'''
 
 #Check if the entered password and username are correct. If yes, login
 def user_login(request, *args, **kwargs):
@@ -202,6 +179,7 @@ def user_logout(request):
     logout(request);
     return HttpResponseRedirect('/');
 
+'''
 #Retrieve the stickynotes of the currently logged in user
 def retrieve_current_user_data(request):
     if request.user.is_authenticated:
@@ -219,8 +197,9 @@ def retrieve_current_user_data(request):
         }
         return JsonResponse(data)
     return JsonResponse({'status':'false','message':"ERROR: User was not logged in. Cannot retrieve stickynotes!"}, status=401)
+'''
 
-
+'''
 #Add stickies to the DB
 def create_stickies(request, *args, **kwargs):
     if request.user.is_authenticated:
@@ -247,6 +226,7 @@ def create_stickies(request, *args, **kwargs):
                     sticky.save()
                     return HttpResponseRedirect('/') #SUCCESSFUL
     return HttpResponseRedirect('') #FAILED
+'''
 
 #returns true if the client is authenticated (I.e. logged in). returns false otherwise
 def user_is_authenticated(request):
@@ -255,7 +235,7 @@ def user_is_authenticated(request):
     return JsonResponse({'authenticated': False})
 
 
-######################################################################
+################################################################################
 #REST API
 
 #host/stickies/

@@ -10,9 +10,9 @@ urlpatterns = [
     path('', views.page_load, name='page_load'),
 
     #TODO: OLD (to be removed probably)
-    path('ajax/retrieve_sticky_colours/', views.retrieve_sticky_colours, name='retrieve_sticky_colours'),
-    path('ajax/retrieve_current_user_data/', views.retrieve_current_user_data, name='retrieve_current_user_data'),
-    path('ajax/create_stickies/', views.create_stickies, name='create_stickies'),
+    #path('ajax/retrieve_sticky_colours/', views.retrieve_sticky_colours, name='retrieve_sticky_colours'),
+    #path('ajax/retrieve_current_user_data/', views.retrieve_current_user_data, name='retrieve_current_user_data'),
+    #path('ajax/create_stickies/', views.create_stickies, name='create_stickies'),
 
     #UPDATED:
     path('ajax/get_colour_by_id/', views.get_colour_by_id, name='get_colour_by_id'),

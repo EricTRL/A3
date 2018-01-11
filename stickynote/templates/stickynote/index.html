@@ -47,16 +47,33 @@
   	</div>
   	<div class="body row">
   		<div id="id_sticky_options" class="col-xs-12 col-md-4">
+        <!--Stickynote Colour-->
   			<form id="id_sticky_options_form_colour" class="sticky_option_element">
   				<h3>Sticky Colour:</h3>
           {% for colour in colours %}
+            <!--Colourlist-->
             <div id="colour_{{colour.id}}" class="colour_option">
-              <label class="clickable f" style="color:rgba({{colour.r}},{{colour.g}},{{colour.b}},{{colour.a}});">
+              <label class="clickable" style="color:rgba({{colour.r}},{{colour.g}},{{colour.b}},{{colour.a}});">
                 <input type="radio" class="clickable" name="colour" value="{{colour.id}}"/><strong>{{colour.name|upper}}</strong>
               </label>
             </div>
           {% endfor %}
   			</form>
+        <div id="id_sticky_options_shared" class="sticky_option_element">
+          <label class="clickable">
+            <input type="checkbox" class="clickable" name="shared" value="shared">Shared with Friends
+          </label>
+        </div>
+
+        <!--Group-->
+        <div id="id_sticky_options_group" class="sticky_option_element">
+          <select class="clickable">
+            {% for group in groups %}
+              <option value="{{group.id}}">{{group.title}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <!--Delete Option-->
   			<div id="id_sticky_options_delete_sticky" class="sticky_option_element edit_only clickable">
   				<div>
   					<img id="id_trashcan_icon" src="{% static 'Images/trashcan_white_closed.png'%}" height=25/>
