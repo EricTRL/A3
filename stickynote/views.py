@@ -1,6 +1,6 @@
 
 from django.contrib.auth.models import User #the user DB table
-from .models import Stickynote, Colour #Stickynote and Colour DB table
+from .models import Stickynote, Colour, Friend, Collaborator, Group #DB tables
 from django.utils import timezone #timezone-data
 
 from django.shortcuts import render
@@ -22,32 +22,131 @@ from rest_framework import permissions #User permissions (I.e. extra admin privi
 
 #Initial page load
 def page_load(request):
-    return render(request, 'stickynote/index.html', {})
+    stickies = [];
+    groups = [];
+    colours = [];
 
-'''
-#Retrieves all the stickies of the currently logged in User
-def user_stickies(request):
-    iUser = request.user
-    if iUser.is_authenticated:
-        print("Authenticated User: " + iUser.first_name)
-        #retrieve the Sticky Notes of the currently logged in User
-        tStickies = Stickynote.objects.filter(author=request.user).order_by('title')
-    else:
-        print('Non-logged in User!')
-        tStickies = []
-    return render(request, 'stickynote/index.html', {'stickies': tStickies})
+    if request.user.is_authenticated:
+        stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
+        print(stickies)
+        groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
+        print(groups)
+        colours = Colour.objects.all().order_by('name');
+        print(colours)
+    return render(request, 'stickynote/index.html', {'stickies': stickies, 'groups': groups, 'colours': colours})
+
+#Gets the data of a stickynote with the given ID.
+#Returns an error if no such stickynote exists
+def get_sticky_by_id(request):
+    if request.user.is_authenticated:
+        iStickyID = request.GET.get('iStickyID',None)
+        if iStickyID == None or not Stickynote.objects.filter(id=iStickyID).exists():
+            return JsonResponse({'status':'false','message':"ERROR: Invalid StickynoteID passed"}, status=404)
+        pSticky = Stickynote.objects.get(id=iStickyID);
+
+        data = {
+            'title':            pSticky.title,
+            'contents':         pSticky.contents,
+            'created_date':     pSticky.created_date,
+            'last_edit_date':   pSticky.last_edit_date,
+            'shared':           pSticky.shared,
+            'colour_id':        pSticky.colour_id,
+            'group_id':         pSticky.group_id,
+        }
+        return JsonResponse(data)
+    return JsonResponse({'status':'false','message':"ERROR: Not Logged in, so nothing to retrieve"}, status=401)
 
 
-#returns true if a user with the given username exists
-#returns false otherwise
-def validate_username(request):
-    username = request.GET.get('username', None)
+#Gets the data of a Colour with the given ID.
+#Returns an error if no such colour exists
+def get_colour_by_id(request):
+    iColourID = request.GET.get('iColourID',None)
+    if iColourID == None or not Colour.objects.filter(id=iColourID).exists():
+        return JsonResponse({'status':'false','message':"ERROR: Invalid ColourID passed"}, status=404)
+
+    pColour = Colour.objects.get(id=iColourID);
+
     data = {
-        'is_taken': User.objects.filter(username__iexact=username).exists()
+        'name':     pColour.name,
+        'r':        pColour.r,
+        'g':        pColour.g,
+        'b':        pColour.b,
+        'a':        pColour.a,
+        'filename': pColour.filename,
     }
     return JsonResponse(data)
-'''
 
+#
+#
+def set_or_create_sticky_by_id(request, *args, **kwargs):
+    #Must be logged in (otherwise there's nowhere to save to)
+    if request.user.is_authenticated:
+        sTitle = request.POST.get('title', '');
+        sContents = request.POST.get('contents', '');
+        iColour = request.POST.get('colour', -1);
+        iColour = Colour.objects.get(id=iColour).id if Colour.objects.filter(id=iColour).exists() else Colour.objects.order_by('id')[0].id
+
+        iGroup = request.POST.get('group', -1);
+        iGroup = Group.objects.get(id=iGroup).id if Group.objects.filter(id=iGroup).exists() else Group.objects.filter(cannotBeDeleted=True,author_id=request.user.id).order_by('id')[0].id
+        bShared = request.POST.get('shared', False) == 'true';
+
+        #print("blaaaaargh "+str(pGroup.id))
+
+        iID = request.POST.get('id', -1)
+        if Stickynote.objects.filter(id=iID).exists():
+            #Already Exists: so we update it
+            pSticky = Stickynote.objects.get(id=iID)
+
+            #Sanity check. No wiping other user's stickies (this should never happen)
+            if Stickynote.objects.filter(group_id__author_id=request.user.id).count() <= 0: return HttpResponseRedirect('') #FAILED
+
+            pSticky.title = sTitle;
+            pSticky.contents = sContents;
+            pSticky.colour = Colour.objects.get(id=iColour);
+            pSticky.group = Group.objects.get(id=iGroup);
+            pSticky.shared = bShared;
+            pSticky.last_edit_date = timezone.now()
+
+            pSticky.save()
+        else:
+            print(bShared)
+            #Does not yet exist: so we create a new one
+            Stickynote.objects.create(title=sTitle, contents=sContents, created_date=timezone.now(), shared=bShared, colour_id=iColour, group_id=iGroup);
+        return HttpResponseRedirect('/'); #SUCCESSFUL
+    return HttpResponseRedirect('') #FAILED
+
+
+#Delete a single sticky from the DB (with a given id)
+def delete_sticky_by_id(request, *args, **kwargs):
+    if request.user.is_authenticated:
+        iID = request.POST.get('id', -1)
+        #the given ID should actually exist and MUST be of the currently logged in user (no wiping other's stickies!)
+        if Stickynote.objects.filter(id=iID,group_id__author_id=request.user.id).exists():
+            Stickynote.objects.get(id=iID,group_id__author_id=request.user.id).delete();
+            return HttpResponseRedirect('/'); #SUCCESSFUL
+    return HttpResponseRedirect('') #FAILED
+
+
+#get a random sticky colour from those in the DB
+def get_random_colour(request):
+    iRandomIndex = randint(0, Colour.objects.count() - 1)
+    pRandomColour = Colour.objects.all()[iRandomIndex]
+
+    data = {
+        'id':       pRandomColour.id,
+        'name':     pRandomColour.name,
+        'r':        pRandomColour.r,
+        'g':        pRandomColour.g,
+        'b':        pRandomColour.b,
+        'a':        pRandomColour.a,
+        'filename': pRandomColour.filename,
+    }
+    print(data)
+    return JsonResponse(data)
+
+
+
+'''
 #Get all stickynote colours (and their RGB-values from the DB)
 def retrieve_sticky_colours(request):
     #create an empty array
@@ -57,44 +156,7 @@ def retrieve_sticky_colours(request):
         colourlist.append([colour.id, colour.name.lower(), colour.r, colour.g, colour.b, colour.a/255]);
     print(colourlist)
     return JsonResponse({"colourlist": colourlist})
-
-#Get the RGB-values of a colour with a given name
-def get_colour_rgb(request):
-    colour = request.GET.get('colour',None)
-    if colour == None: return JsonResponse({'status':'false','message':"ERROR: Cannot get RGB when colour is not specified"}, status=401)
-    for rgb in Colour.objects.filter(id=colour):
-        name = rgb.name
-        r = rgb.r;
-        g = rgb.g;
-        b = rgb.b;
-
-    data = {
-        'name': name,
-        'r': r,
-        'g': g,
-        'b': b,
-    }
-    #print("RGB: " + str(r) + " " + str(g) + " " + str(b));
-    return JsonResponse(data)
-
-#get a random sticky colour from those in the DB
-def get_random_colour(request):
-    colours = [];
-    i=0;
-    for colour in Colour.objects.all():
-        colours.append([colour.id, colour.name.lower(), colour.r, colour.g, colour.b]);
-        i+=1;
-    print('there are ' + str(i) + 'colours in the DB');
-    randcolour = randint(0, i-1);
-    data = {
-        'colour': colours[randcolour][0],
-        'name': colours[randcolour][1],
-        'r': colours[randcolour][2],
-        'g': colours[randcolour][3],
-        'b': colours[randcolour][4],
-    }
-    print(data)
-    return JsonResponse(data)
+'''
 
 #Check if the entered password and username are correct. If yes, login
 def user_login(request, *args, **kwargs):
@@ -117,6 +179,7 @@ def user_logout(request):
     logout(request);
     return HttpResponseRedirect('/');
 
+'''
 #Retrieve the stickynotes of the currently logged in user
 def retrieve_current_user_data(request):
     if request.user.is_authenticated:
@@ -134,19 +197,9 @@ def retrieve_current_user_data(request):
         }
         return JsonResponse(data)
     return JsonResponse({'status':'false','message':"ERROR: User was not logged in. Cannot retrieve stickynotes!"}, status=401)
+'''
 
-#Delete a single sticky from the DB (with a given id)
-def delete_sticky_by_id(request, *args, **kwargs):
-    if request.user.is_authenticated:
-        iID = request.POST.get('id', -1)
-        #the given ID should actually exist and MUST be of the currently logged in user (no wiping other's stickies!)
-        if Stickynote.objects.filter(id=iID).exists() and Stickynote.objects.get(id=iID).author_id == request.user.id:
-            print('got em')
-            Stickynote.objects.get(id=iID).delete();
-            return HttpResponseRedirect('/'); #SUCCESSFUL
-    return HttpResponseRedirect('') #FAILED
-
-
+'''
 #Add stickies to the DB
 def create_stickies(request, *args, **kwargs):
     if request.user.is_authenticated:
@@ -173,6 +226,7 @@ def create_stickies(request, *args, **kwargs):
                     sticky.save()
                     return HttpResponseRedirect('/') #SUCCESSFUL
     return HttpResponseRedirect('') #FAILED
+'''
 
 #returns true if the client is authenticated (I.e. logged in). returns false otherwise
 def user_is_authenticated(request):
@@ -181,7 +235,7 @@ def user_is_authenticated(request):
     return JsonResponse({'authenticated': False})
 
 
-######################################################################
+################################################################################
 #REST API
 
 #host/stickies/

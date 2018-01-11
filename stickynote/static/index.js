@@ -4,6 +4,9 @@ TODO
 */
 
 $(document).ready(function() {
+	//////////////////////////////////////////////////////////////////////////////
+	//Login/Logout forms
+
 	//What happens when "Login" (topright corner) is clicked
 	$('#id_login_button').on('click', function(e) {
 		e.preventDefault();
@@ -15,7 +18,7 @@ $(document).ready(function() {
 		}
 	});
 
-	//When opening/closing the menu in mobile browsers (or other small screens, hide the login form initially)
+	//When opening/closing the menu in mobile browsers (or other small screens), hide the login form initially
 	$('.navbar-toggle').on('click', function(e) {
 		e.preventDefault();
 		if (!bIsLoggedIn) {
@@ -24,11 +27,14 @@ $(document).ready(function() {
 			$('#id_dropdown_logout').stop().slideUp();
 		}
 	});
+	//////////////////////////////////////////////////////////////////////////////
+	//Logging in/out stuff (communicate with the DB):
 
 	//what happens when you submit the login-form
 	$('#id_login_form').submit(function(e) {
 		e.preventDefault();
 		print('Login Form Submitted');
+		//get what was entered in the fields
 		const sUsername = $("#id_login_form input[name=username]").val();
 		const sPassword = $("#id_login_form input[name=password]").val();
 
@@ -49,12 +55,11 @@ $(document).ready(function() {
 					      },
 					success: function(){
 							print('SUCCESSFUL LOGIN');
-							onLogin();
-							$('#error_invalid_username_or_password').hide();
+							location.reload(); //reload the page on success
 					},
 					error: function(jqXHR, status, errorThrown) {
 							print('FAILED LOGIN');
-							$('#error_invalid_username_or_password').show();
+							$('#error_invalid_username_or_password').show(); //show an error msg on fail
 					  	//print(jqXHR);
 					},
 	      });
@@ -75,7 +80,7 @@ $(document).ready(function() {
 					data: {},
 					success: function(){
 							print('SUCCESSFUL LOGOUT');
-							onLogout();
+							location.reload();
 					},
 					error: function(jqXHR, status, errorThrown) {
 							print('FAILED LOGOUT');
@@ -83,33 +88,55 @@ $(document).ready(function() {
 					},
 	      });
 	});
+	//////////////////////////////////////////////////////////////////////////////
+	//Creating/Saving a Stickynote
 
+	//What happens when the 'New Sticky' button is pressed
+	$('.group').on('click', function(e) {
+		//print(e.target.id) //e.target.id returns the id of the element that was clicked, including children
+		//print($(this).attr("id")) //this returns the actual id of the item that the event was hooked onto!
+		const iGroup = $(this).attr("id").substring("group_".length); //extract the groupID from the html-id (I.e. everything after "group_")
 
-	//What happens wehn the 'New Sticky' button is pressed
-	$('#id_add_sticky_button').on('click', function(e) {
 		print("Add Sticky button clicked");
-		createStickynote(true, chooseRandomStickyColour()); //!!!
+		iLastSelectedSticky = -1;
+		openStickyEditor(iGroup,true);
 	});
 
-	//update the grid each time the user zooms in or out
-	$(window).resize(function() {
-	  //print("Screen size changed!");
-	   calculateGridSize();
+	//What happens when an existing sticky is clicked
+	$('.stickynote').on('click', function(e) {
+		const iSticky = $(this).attr("id").substring("sticky_".length); //extract the ID from the html-id (I.e. everything after "sticky_")
+		//print(iSticky)
+
+		print("Existing Sticky Clicked");
+		iLastSelectedSticky = iSticky;
+		openStickyEditor(iSticky,false);
 	});
 
-	//what happens when the edit/create sticky popup is saved/cancelled:
+	//what happens when the stickynote that's opened up in the editor is saved/cancelled:
 	//(https://stackoverflow.com/questions/5721724/jquery-how-to-get-which-button-was-clicked-upon-form-submission)
 	$(".sticky_edit").submit(function(e) {
 		e.preventDefault();
 		if (bAddStickyPopupIsActive) {
 			const val = $("input[type=submit][clicked=true]").val();
 			if (val=="Save"){
-				saveStickynote(iNewStickyColour,$("#id_sticky_form input[name=title]").val(), JSON.stringify(quill.getContents()));
+
+				const iColour = $('#id_sticky_options_form_colour input[name=colour]:checked').val();
+				const sTitle = $("#id_sticky_form input[name=title]").val();
+				const sContents = JSON.stringify(quill.getContents());
+				//TODO
+				const iGroup = $("#id_sticky_options_group select").val();
+				const bShared = $("#id_sticky_options_shared input[name=shared]").prop('checked');
+				//print(iColour)
+				set_or_create_sticky_by_id(iLastSelectedSticky, sTitle, sContents, iColour, iGroup, bShared, function(){
+					bAddStickyPopupIsActive = false;
+					$('#id_popup_add_sticky').stop().fadeOut();
+					location.reload();
+				}, null)
 			}else{
-				cancelStickynote();
+				//Do nothing TODO: remove NEW STICKY
+				bAddStickyPopupIsActive = false;
+				$('#id_popup_add_sticky').stop().fadeOut();
 			}
-			bAddStickyPopupIsActive = false;
-			$('#id_popup_add_sticky').stop().fadeOut();
 		}
 	});
 	$(".sticky_edit input[type=submit]").click(function() {
@@ -117,10 +144,31 @@ $(document).ready(function() {
 		$(this).attr("clicked", "true");
 	});
 
+	//////////////////////////////////////////////////////////////////////////////
+	//Stickynote forms on the left of the Editor
+
+	//When Clicking a Colour Radio Button, update the Editor's Colours as well
+	$('.colour_option').on('click', function(e) {
+
+		$("input[name=colour]", this).prop('checked', true);
+		const iID = $(this).attr("id").substring("colour_".length)
+		print('Sticky Colour Changed: ' + iID);
+
+		get_colour_by_id(iID, function(data){
+			//Update the Editor Colours
+			UpdateEditorColours(data.r, data.g, data.b, data.a, data.filename);
+		});
+		return false;
+	});
+
 	//What happens when the 'Delete Sticky' option is clicked
 	$('#id_sticky_options_delete_sticky').on('click', function(e) {
-		print("Deleting sticky " + iSelectedSticky);
-		deleteStickynote(iSelectedSticky-1, true);
+		print("Deleting sticky " + iLastSelectedSticky);
+
+		delete_sticky_by_id(iLastSelectedSticky,function(){
+			location.reload();
+		},null);
+
 		bAddStickyPopupIsActive = false;
 		$('#id_popup_add_sticky').stop().fadeOut();
 	});
@@ -132,31 +180,71 @@ $(document).ready(function() {
 		$('#id_trashcan_icon').attr("src", "static/Images/trashcan_white_closed.png");
 	});
 
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//Miscellaneous:
+	let sPath = $('#STATICPATH').text();
+	if (sPath !== undefined) {
+		sPath = sPath.substring(0, sPath.indexOf("/Images/") + "/Images/".length);
+	}
+	const STATICPATH = sPath;
+	print(STATICPATH)
+
+	//Randomize the Colour of the "Add Sticky" buttons
+	const iNumGroups = $('.sticky_add_img').length
+	for (let i=0; i<iNumGroups; i++){
+		get_random_colour(function(_,_,_,_,_,_,sFilename){
+			$('.sticky_add_img:eq(' + i + ')').attr("src",STATICPATH + '/Images/' + sFilename);
+		});
+	}
+
+	//update the grid each time the user zooms in or out
+	$(window).resize(function() {
+	  //print("Screen size changed!");
+	   calculateGridSize();
+	});
+
+
 	//update the grid upon load
 	calculateGridSize();
-	//retrieve the editor's colours upon load
-	retrieveStickyColoursAJAX(initColourList);
+
+	//retrieve the editor's colours upon load TODO
+	//retrieveStickyColoursAJAX(initColourList);
+
 	//display the correct login stuff upon load
 	checkLoginPageLoadAJAX();
 });
+//end of JQuery document.ready stuff
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//Miscellaneous functions & Defines:
 
 function print(str){
-	//console.log(str);
+	console.log(str);
 }
 
-let bIsLoggedIn = false; //whether the user is logged in
-let iNumMaxColStickies = 1; //updated in calculateGridSize();
-let iPrevNavWidth = -1; //The scrollbarlistener fires the resize event twice, so this prevents unnecessary calculations
+let bIsLoggedIn = false; 		//whether the user is logged in
+let iNumMaxColStickies = 1; //Represents how many stickies can fit in a single column of the grid (updated in calculateGridSize());
+let iPrevNavWidth = -1; 		//The scrollbarlistener fires the resize event twice, so this prevents unnecessary calculations
+let iLastSelectedSticky = -1; //The ID of the last selected stickynote. -1 if a new sticky was added
 
-let tStickies = []; //array that will contain instances of the stickynote class
-let iNewStickyColour; //set by the add-sticky button to keep track of a new sticky's colour
+//TODO: remove (WARNING)
+//let tStickies = []; //array that will contain all stickynotes (no matter the group)
+
+//let iNewStickyColour; //set by the add-sticky button to keep track of a new sticky's colour
 let bAddStickyPopupIsActive = false; //true when the add/edit-sticky popup is opened up
-let iSelectedSticky = -1; //set by the onclicklisteners to retrieve the correct data
 
-let iCurrentUser = -1; //the currently logged in user
 
+//let iSelectedSticky = -1; //set by the onclicklisteners to retrieve the correct data
+
+//Updates the size of the grid based on screen-size.
+//E.g. only a single sticky can fit on a mobile screen, but multiple fit on tables
 function calculateGridSize() {
-
 	//get screen size, etc. to adjust grid-template-columns dynamically. (Usually returned in pixels)
 	//Nothing to change here, as bootstrap now correctly shrinks down the navbar
 	const iWidth = $('#id_navbar').width(); //NOT returned in pixels!
@@ -189,86 +277,255 @@ function calculateGridSize() {
 		iNumMaxColStickies = iNumColumns;
 		print("Screen size updated");
 	}
-
 }
 
-//stickynote class:
-class Stickynote {
-	constructor(iColour, sTitle, sContents, iID) {
-		this._id = iID;
-		this._colour = iColour;
-		this._title = sTitle;
-		this._contents = sContents;
-	}
-	get colour() {return this._colour;}
-	get title() {return this._title;}
-	get contents() {return this._contents;}
-	get id() {return this._id;}
+////////////////////////////////////////////////////////////////////////////////
+//Sticky Editor Stuff:
 
-	set colour(iColour) {
-		this._colour = iColour;
-	};
-	set title(sTitle) {
-		//no checking needed as of now
-		this._title = sTitle;
-	}
-	set contents(sContents) {
-		//no checkign needed as of now
-		this._contents = sContents;
-	}
-	set id(iID){
-		//this is actually never called!
-		this._id = iID;
+//COMMENT
+function openStickyEditor(iID, bAppendNewSticky){
+	//Empty all the fields first
+	$("#id_popup_add_sticky input[name=title]").val("");
+	quill.setContents("");
+
+	//hide specific fields for new stickies:
+	updateEditorOptions(bAppendNewSticky);
+
+	if (bAppendNewSticky){
+		//new Stickynote. iID = groupID
+		$(".popup_title").text("Create Sticky");
+
+		//select a random radio button colour
+		const iNumColoursToChooseFrom = $('#id_sticky_options_form_colour > .colour_option').length;
+		const iRandomRadioButton = Math.floor(Math.random()*iNumColoursToChooseFrom);
+		$('#id_sticky_options_form_colour .colour_option:eq(' + iRandomRadioButton + ')').trigger("click");
+
+		//show the popup
+		bAddStickyPopupIsActive = true;
+		$('#id_popup_add_sticky').stop().fadeIn();
+
+		//TODO (maybe): Append a "new sticky" on the screen for fancy visuals
+	}else{
+		//existing stickynote. iID = stickyID
+		$(".popup_title").text("Edit Sticky");
+
+		//existing sticky that the user wants to edit, so retrieve all the fields from the DB
+		get_sticky_by_id(iID, function(data){
+			$("#id_popup_add_sticky input[name=title]").val(data.title);
+			quill.setContents(JSON.parse(data.contents));
+
+			//and update the editor colours:
+			get_colour_by_id(data.colour_id, function(data2){
+				//Update the Editor Colours
+				UpdateEditorColours(data2.r, data2.g, data2.b, data2.a, data2.filename);
+
+				//Set the correct Radio Button
+				$('#colour_' + data.colour_id + ' input[name=colour]').prop('checked', true);
+
+				//Set the shared-checkbox
+				$("#id_sticky_options_shared input[name=shared]").prop('checked',data.shared)
+
+				//Set the group-Dropdown
+				$("#id_sticky_options_group select").val(data.group_id);
+
+
+				//If that all has been done, we can finally actually open the editor
+				bAddStickyPopupIsActive = true;
+				$('#id_popup_add_sticky').stop().fadeIn();
+			});
+		});
 	}
 }
 
-//available stickynote colours: All in the DB now
-//const tStickyColours = ['blue','brown','green','grey','orange','purple','red','turquoise','yellow'];
-//file paths of these colours follow this format: static/Images/stickynote_COLOUR.png
+//Editor color defintions. Several pieces get a darker or lighter shade based upon the Sticky Colour. Several variables to allow finetuning
+const iHeaderColourModifier = 0.75; 						//the Sticky's Header receives a darker shade of said colour
+const iButtonColourModifier = 0.75; 						//the save/cancel buttons receive a darker shade of said colour
+const iEditorColourModifier = 0.75;							//the Quill editor receives a lighter shade of said colour
+const iOptionElementColourModifier = 0.75; 			//the background-colour for the options is a bit lighter
+const iOptionElementBorderColourModifier = 0.75;//the border-colour for the options is a bit darker
+const iOptionElementTextColourModifier = 0.75; 	//the text-colour gets the dark variant;
 
-/*
-//No longer needed. It's all in the DB now
-const tStickyColoursRGBs = {
-	//Colour		R			G			B			A
-	blue: 			[109,	144,	206,	255	],
-	brown:			[133,	81,		46,		255	],
-	green:			[109,	206,	128,	255	],
-	grey:				[176,	176,	176,	255	],
-	orange:			[234,	142,	81,		255	],
-	purple:			[220,	136,	221,	255	],
-	red:				[206,	109,	109,	255	],
-	turquoise:	[109,	206,	206,	255	],
-	yellow:			[219,	220,	95,		255	],
-};
-*/
+//Updates the colours of the Editor with the given values (and using the constants above)
+function UpdateEditorColours(iR, iG, iB, iA, sFileName){
+	//update a NEW_STICKY as well (if it exists).
+	$( ".new_sticky:eq(-1) .sticky_img" ).attr("src",STATICPATH + '/Images/' + sFileName);
 
-/////////////////////////////////////////////////////////////////////////
-//AJAX GETs and POSTs
 
-let tStickyColours = {};
-let bRandomAddStickyColourChosen = false;
+	//actually update the colours of the HTML elements
+	$('.popup .sticky_edit .header').css("background-color",									"rgba(" + Math.round(iR*iHeaderColourModifier) + ", " + Math.round(iG*iHeaderColourModifier) + ", " + Math.round(iB*iHeaderColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body').css("background-color",										"rgba(" + iR + ", " + iG + ", " + iB + ", " + iA + ")");
+	$('.popup .sticky_edit .body .buttons input').css("background-color",			"rgba(" + Math.round(iR*iButtonColourModifier) + ", " + Math.round(iG*iButtonColourModifier) + ", " + Math.round(iB*iButtonColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body form .editor_input').css("background-color",	"rgba(" + Math.round(iR + (255-iR)*iEditorColourModifier) + ", " + Math.round(iG + (255-iG)*iEditorColourModifier) + ", " + Math.round(iB + (255-iB)*iEditorColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("background-color",	"rgba(" + Math.round(iR + (255-iR)*iOptionElementColourModifier) + ", " + Math.round(iG + (255-iG)*iOptionElementColourModifier) + ", " + Math.round(iB + (255-iB)*iOptionElementColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("border-color",			"rgba(" + Math.round(iR*iOptionElementBorderColourModifier) + ", " + Math.round(iG*iOptionElementBorderColourModifier) + ", " + Math.round(iB*iOptionElementBorderColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options h3').css("color",					"rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options option').css("color",			"rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options select').css("color",			"rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body #id_sticky_options #id_sticky_options_shared label').css("color", "rgba(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+
+	//$('.popup .sticky_edit .body #id_sticky_options label').css("color","rgb(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ", " + iA + ")");
+}
+
+
+function updateEditorOptions(bNewSticky){
+	//Hide the option elements that can only be used in edit-mode
+	if (bNewSticky){
+		$('.edit_only').hide();
+	}else{
+		$('.edit_only').show();
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//AJAX Requests
+
+//TODO: COMMENT
+function get_sticky_by_id(iStickyID,func) {
+	$.ajax({
+	    url: '/ajax/get_sticky_by_id/',
+	    data: {'iStickyID': iStickyID},
+			type: 'GET',
+	    dataType: 'json',
+	    success: function (data) {
+					/*
+					//fire the respective event:
+					evt = $.Event('ColourDataRetrieved');
+					evt.state = data;
+					$(window).trigger(evt);
+					*/
+					func(data)
+	    }
+	});
+}
+
+//TODO: COMMENT
+function get_colour_by_id(iColourID,func) {
+	$.ajax({
+	    url: '/ajax/get_colour_by_id/',
+	    data: {'iColourID': iColourID},
+			type: 'GET',
+	    dataType: 'json',
+	    success: function (data) {
+					/*
+					//fire the respective event:
+					evt = $.Event('ColourDataRetrieved');
+					evt.state = data;
+					$(window).trigger(evt);
+					*/
+					func(data)
+	    }
+	});
+}
+
+//TODO: COMMENT
+function set_or_create_sticky_by_id(iStickyID, sTitle, sContents, iColour, iGroup, bShared, onSuccess, onFail) {
+	//set a valid CSRF token
+	setupSafeAjax();
+	//actually uplaod the stickies
+	$.ajax({
+				type:"POST",
+				url:"ajax/set_or_create_sticky_by_id/",
+				data: {
+							'id': 			iStickyID,
+							'title': 		sTitle,
+							'contents': sContents,
+							'colour': 	iColour,
+							'group': 		iGroup,
+							'shared':		bShared,
+							},
+				success: function(){
+						print('SUCCESSFUL UPLOAD');
+						if (onSuccess != null){
+							onSuccess();
+						}
+
+				},
+				error: function(jqXHR, status, errorThrown) {
+						print('FAILED UPLOAD');
+
+						if (onFail != null){
+							onFail(jqXHR, status, errorThrown);
+						}
+
+						//print(jqXHR);
+				},
+	});
+}
+
+//TODO: COMMENT
+function delete_sticky_by_id(iStickyID, onSuccess, onFail) {
+	//set a valid CSRF token
+	setupSafeAjax();
+	//actually uplaod the stickies
+	$.ajax({
+				type:"POST",
+				url:"ajax/delete_sticky_by_id/",
+				data: {
+							'id': iStickyID,
+							},
+				success: function(){
+						print('SUCCESSFUL DELETE');
+						if (onSuccess != null){
+							onSuccess();
+						}
+				},
+				error: function(jqXHR, status, errorThrown) {
+						print('FAILED DELETE');
+
+						if (onFail != null){
+							onFail(jqXHR, status, errorThrown);
+						}
+				},
+	});
+}
+
+//TODO: COMMENT
+function get_random_colour(func) {
+	$.ajax({
+	    url: '/ajax/get_random_colour/',
+			data: {},
+			type: 'GET',
+	    dataType: 'json',
+	    success: function (data) {
+					//print(data)
+					func(data.id,data.name,data.r,data.g,data.b,data.a,data.filename);
+	    }
+	});
+}
+
+//sets the logged in boolean on page load. (I.e. extra handling in case the user is already logged in from a previous session)
+function checkLoginPageLoadAJAX(){
+	$.ajax({
+	    url: '/ajax/user_is_authenticated/',
+	    data: {},
+			type: 'GET',
+	    dataType: 'json',
+	    success: function (data) {
+					bIsLoggedIn = data.authenticated;
+					if (bIsLoggedIn) {
+						print('USER WAS ALREADY LOGGED IN FROM A PREVIOUS SESSION!');
+
+					}
+	    }
+	});
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//Event Listeners (fired by the AJAX requests)
 
 //Event Listener. Functions can be 'hooked' into it here:
-//Fires whenever stickynote colours have been successfully retrieved from the DB
-$(window).on('StickyColoursRetrieved', function (e) {
-		//e.state contains a list of colours. Each index has the following format: [id,name,r,g,b,a]
+//Fires a Colour has been retrieved from the DB
+/*
+$(window).on('ColourDataRetrieved', function (e) {
 
-		//cache the data so that it can be used later
-		tStickyColours = [];
-		//print(e.state)
-		for (index in e.state) {
-			//print(sColour)
-			tStickyColours[e.state[index][0]] = [e.state[index][1], e.state[index][2], e.state[index][3], e.state[index][4]]
-		}
-		print(tStickyColours);
+});*/
 
-		if (!bRandomAddStickyColourChosen){
-			//randomizes the colour of the 'Add sticky'-sticky (only do this once upon page load)
-			bRandomAddStickyColourChosen = true;
-			$(".sticky_img").attr("src","static/Images/stickynote_" + tStickyColours[chooseRandomStickyColour()][0] + ".png");
-		}
-		//new stickycolour-table == e.state
-});
+
+////////////////////////////////////////////////////////////////////////////////
+//Getting valid CSRF-Tokens for AJAX Requests and setting them up
 
 function setupSafeAjax(){
 	//set a valid CSRF token
@@ -294,474 +551,6 @@ function getCookie(c_name)
 		}
 		return "";
  }
-
-//Gets all colours in the DB
-function retrieveStickyColoursAJAX(func) {
-	$.ajax({
-	    url: '/ajax/retrieve_sticky_colours/',
-	    data: {},
-			type: 'GET',
-	    dataType: 'json',
-	    success: function (data) {
-					//fire the respective event:
-					evt = $.Event('StickyColoursRetrieved');
-					evt.state = data.colourlist;
-					$(window).trigger(evt);
-
-					//fire the (render ONLY!)-function. I.e. it cannot return variables
-					func(data);
-	    }
-	});
-}
-//retrieveStickyColoursAJAX(function(data){print(data)});
-
-function saveStickynoteAJAX(table, onSuccess) {
-	//set a valid CSRF token
-	setupSafeAjax();
-
-	//actually uplaod the stickies
-	$.ajax({
-				type:"POST",
-				url:"ajax/create_stickies/",
-				data: {
-							'stickydata[]': table,
-							},
-				success: function(){
-						print('SUCCESSFUL UPLOAD');
-						onSuccess();
-				},
-				error: function(jqXHR, status, errorThrown) {
-						print('FAILED UPLOAD');
-						//print(jqXHR);
-				},
-			});
-}
-
-/*
-//gets the RGB value of a given colour in the DB (returns {name: a, r: 0, g: 0, b: 0})
-function retrieveColourRGBAJAX(sColour,func) {
-	$.ajax({
-	    url: '/ajax/get_colour_rgb/',
-	    data: {'colour': sColour},
-			type: 'GET',
-	    dataType: 'json',
-	    success: function (data) {
-					//print(data)
-					func(sColour,data.r,data.g,data.b);
-	    }
-	});
-}
-//retrieveColourRGBAJAX('blue',function(data){print(data.b)})
-*/
-
-/*
-//Gets a random colour from the DB (name AND its rgb values)
-function retrieveRandomColourAJAX(func) {
-	$.ajax({
-	    url: '/ajax/get_random_colour/',
-			data: {},
-			type: 'GET',
-	    dataType: 'json',
-	    success: function (data) {
-					print(data)
-					func(data.colour,data.r,data.g,data.b);
-	    }
-	});
-}
-//retrieveRandomColourAJAX(function(data){print(data.colour)})
-*/
-
-
-
-////////////////////////////////////////////////////////////////////////
-//Everything related to the creation, deletion, styling, etc. of Sticky Notes
-
-function chooseRandomStickyColour(){
-	//extra logic as there may be holes in the table (E.g. no colour with id=4)
-	table = [];
-	tStickyColours.forEach(function(_,id){
-		table.push(id);
-	});
-	return table[Math.floor(Math.random()*table.length)];
-}
-
-//Creates a temporary stickynote on the screen
-function createStickynote(bOpensEditor, iColour){
-	iNewStickyColour = iColour;
-	sColour = tStickyColours[iColour][0];
-	const stickyFormat = 	'<div class="sticky_data sticky_div new_sticky"><div class="stickynote clickable">' +
-									'<img class="sticky_img sticky_elem" src="static/Images/stickynote_' + sColour + '.png/">' +
-									'<p class="add_sticky_text sticky_elem">NEW STICKY</p>' +
-								'</div></div>';
-	let sticky = $(stickyFormat);   // Create with jQuery
-	$(".stickyNotesGrid").append(sticky);      // Append the new element
-
-	if (bOpensEditor) {
-		iSelectedSticky = 0;
-		openStickyEditor();
-	}
-}
-
-//Creates (and saves) the actual stickynote
-function saveStickynote(iRandomStickyColour, sTitle, sContents) {
-	//do some extra stuff if a new sticky was created
-	if (iSelectedSticky == 0){
-		print("Sticky Added")
-		iRandomStickyColour = iNewStickyColour;
-		//create a sticky obj
-		let pSticky = new Stickynote(iRandomStickyColour, sTitle, sContents, -1);
-		tStickies.push(pSticky);
-
-		//remove the 'new_sticky' class from the newly rendered sticky;
-		$( ".sticky_div:eq(-1)" ).removeClass("new_sticky");
-
-		//Add an onclick-listener
-		const temp = tStickies.length; //tStickies is a global variable, but we want the listener to always return the value this global had upon DECLARATION of the listener!
-		$('.sticky_div:eq(-1)').on('click', function(e) {
-			print('Existing Sticky Clicked: ' + temp);
-			iSelectedSticky = temp;
-			openStickyEditor();
-		});
-
-		iSelectedSticky = tStickies.length;
-
-		//debug in the console:
-		print("New sticky added: ");
-	}else{
-		print("Updating sticky " + iSelectedSticky);
-	}
-
-	//update the object
-	tStickies[iSelectedSticky-1].colour = iRandomStickyColour;
-	tStickies[iSelectedSticky-1].title = sTitle;
-	tStickies[iSelectedSticky-1].contents = sContents;
-
-
-	//if the user is logged in, also store the sticky in the DB (or update it if it's already there)
-	if (bIsLoggedIn){
-			let func = function() {};
-			if (tStickies[iSelectedSticky-1].id < 0){
-				func = function() {
-					clearStickies(); //clear the stickies from the screen
-					retrieveCurrentUserStickies(); //re-add them (we need the newly assigned ID of the newly stored sticky!)
-				}
-			}
-
-			saveStickynoteAJAX(
-				[JSON.stringify({
-					'id': tStickies[iSelectedSticky-1].id,
-					'colour': tStickies[iSelectedSticky-1].colour,
-					'title': tStickies[iSelectedSticky-1].title,
-					'contents': tStickies[iSelectedSticky-1].contents,
-				})]
-				, func)
-	}
-
-	//Sort the stickies and update the screen (and log the result)
-	sortStickies();
-}
-
-//what happens when the 'cancel' button is pressed in the sticky note editor
-function cancelStickynote(){
-	print("Changes discarded");
-	$('.stickyNotesGrid div').remove('.new_sticky'); //remove newly created stickies (or save no data if a sticky was edited)
-	//no need to update or sort here
-}
-
-//updates the display of stickynote at index i (based upon its data in the array)
-//call this after updating the data of a sticky in the array
-function updateStickynote(i){
-	//update the title
-	$( ".sticky_div p:eq(" + (i+1) + ")" ).text(tStickies[i].title);
-	//update the colour
-	$(".sticky_div .sticky_img:eq(" + (i+1) + ")").attr("src","static/Images/stickynote_"+ tStickyColours[tStickies[i].colour][0] + ".png");
-	//DO NOT CALL sortStickies() IN HERE AS sortStickies() CALLS THIS FUNCTION!
-}
-
-//deletes the stickynote at index i;
-function deleteStickynote(i, bFromDB){
-	print("Sticky " + tStickies[i].title + "(" + i + ") has been deleted...")
-	const id = tStickies[i].id;
-	tStickies[i] = tStickies[tStickies.length-1]; //put the last element in its place (so we don't fck up the onclicklisteners)
-	tStickies.pop(); //delete the data from the array
-	$('.stickyNotesGrid div').remove(".sticky_div:eq(-1)") //delete the sticky from the screen
-
-	if (bFromDB && bIsLoggedIn){
-		print('attempting to delete sticky from DB')
-
-		//set a valid CSRF token
-		setupSafeAjax();
-
-		//actually uplaod the stickies
-		$.ajax({
-					type:"POST",
-					url:"ajax/delete_sticky_by_id/",
-					data: {	'id': id} ,
-					success: function(){
-							print('SUCCESSFUL DELETE');
-					},
-					error: function(jqXHR, status, errorThrown) {
-							print('FAILED DELETE');
-							//print(jqXHR);
-					},
-				});
-	}
-	//sort and update the stickies (and log the result)
-	sortStickies();
-}
-
-//gets rid of all stickies on the screen. I.e. it deletes them from the tables
-//it does NOT delete them from the DB
-function clearStickies(){
-	//delete backwards
-	for (i=tStickies.length-1; i>=0; i--){
-		deleteStickynote(i,false);
-	}
-}
-
-//call this when the stickies need to be sorted
-//this function doesn't actually re-arrange the divs on the screen, it simply changes all the data within them (to prevent the onclick-listeners from messing up)
-function sortStickies() {
-	tStickies.sort(sortStickyByTitle); //sort the array
-
-	for (i = 0; i<tStickies.length; i++) {
-		updateStickynote(i);
-	}
-	print("SORTED: ");
-	print(JSON.parse(JSON.stringify(tStickies)));
-}
-
-//sort function for sorting the sticky array
-function sortStickyByTitle(a, b) {
-  if (a.title.toUpperCase() < b.title.toUpperCase()) {
-    return -1;
-  }
-  if (a.title.toUpperCase() > b.title.toUpperCase()) {
-    return 1;
-  }
-  //leave the order as is if two stickies have the same title.
-  return 0;
-}
-
-//returns true if a given sticky is already being displyaed on teh screen. returns false otherwise (based on IDs)
-function isAlreadyDisplayed(iID){
-	for (j=0; j<tStickies.length; j++){
-		if (tStickies[j].id == iID && iID>0) {
-			return true;
-		}
-	}
-	return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//stickynote editor:
-
-function openStickyEditor(){
-	print('STICKY EDITOR OPENED UP... (' + iSelectedSticky + ')');
-	if (iSelectedSticky == 0){
-		//Newly created sticky (I.e. No data yet, so empty all the fields)
-		$("#id_popup_add_sticky input[name=title]").val("");
-		quill.setContents("");
-		$(".popup_title").text("Create Sticky");
-	}else{
-		//existing sticky that the user wants to edit, so retrieve all the fields
-		print(tStickies[iSelectedSticky-1]);
-		let pSelectedSticky = tStickies[iSelectedSticky-1];
-		$("#id_popup_add_sticky input[name=title]").val(pSelectedSticky.title);
-		quill.setContents(JSON.parse(pSelectedSticky.contents));
-		$(".popup_title").text("Edit Sticky");
-		iNewStickyColour = pSelectedSticky.colour;
-	}
-	retrieveStickyColoursAJAX(initColourList);
-	updateEditorOptions();
-	//Set the editor's colour to the sticky's colour
-	updateEditorColours(iNewStickyColour);
-
-	bAddStickyPopupIsActive = true;
-	$('#id_popup_add_sticky').stop().fadeIn();
-}
-
-//Editor color defintions. Several pieces get a darker or lighter shade based upon the Sticky Colour. Several variables for possible finetuning
-const iHeaderColourModifier = 0.75; //the Sticky's Header receives a darker shade of said colour
-const iButtonColourModifier = 0.75; //the save/cancel buttons receive a darker shade of said colour
-const iEditorColourModifier = 0.75; //the Quill editor receives a lighter shade of said colour
-const iOptionElementColourModifier = 0.75; //the background-colour for the options is a bit lighter
-const iOptionElementBorderColourModifier = 0.75; //the border-colour for the options is a bit darker
-const iOptionElementTextColourModifier = 0.75; //the text-colour gets the dark variant;
-
-//Updates the Editor's Colours:
-function updateEditorColours(iColour){
-	sColour = tStickyColours[iColour][0]
-	print("Updating editor colours: " + sColour /*+ "(" + r + "," + g + "," + b + ")"*/);
-
-	//set the correct checkbox:
-	//MOVED TO initColourList!
-
-	if (iSelectedSticky == 0) {
-		//update the NEW STICKY as well
-		$( ".new_sticky:eq(-1) .sticky_img" ).attr("src","static/Images/stickynote_" + sColour + ".png");
-	}
-	const iR = tStickyColours[iColour][1];
-	const iG = tStickyColours[iColour][2];
-	const iB = tStickyColours[iColour][3];
-
-	//actually update the colours
-	$('.popup .sticky_edit .header').css("background-color","rgb(" + Math.round(iR*iHeaderColourModifier) + ", " + Math.round(iG*iHeaderColourModifier) + ", " + Math.round(iB*iHeaderColourModifier) + ")");
-	$('.popup .sticky_edit .body').css("background-color","rgb(" + iR + ", " + iG + ", " + iB + ")");
-	$('.popup .sticky_edit .body .buttons input').css("background-color","rgb(" + Math.round(iR*iButtonColourModifier) + ", " + Math.round(iG*iButtonColourModifier) + ", " + Math.round(iB*iButtonColourModifier) + ")");
-	$('.popup .sticky_edit .body form .editor_input').css("background-color","rgb(" + Math.round(iR + (255-iR)*iEditorColourModifier) + ", " + Math.round(iG + (255-iG)*iEditorColourModifier) + ", " + Math.round(iB + (255-iB)*iEditorColourModifier) + ")");
-	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("background-color","rgb(" + Math.round(iR + (255-iR)*iOptionElementColourModifier) + ", " + Math.round(iG + (255-iG)*iOptionElementColourModifier) + ", " + Math.round(iB + (255-iB)*iOptionElementColourModifier) + ")");
-	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("border-color","rgb(" + Math.round(iR*iOptionElementBorderColourModifier) + ", " + Math.round(iG*iOptionElementBorderColourModifier) + ", " + Math.round(iB*iOptionElementBorderColourModifier) + ")");
-	$('.popup .sticky_edit .body #id_sticky_options h3').css("color","rgb(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ")");
-	//$('.popup .sticky_edit .body #id_sticky_options label').css("color","rgb(" + Math.round(iR*iOptionElementTextColourModifier) + ", " + Math.round(iG*iOptionElementTextColourModifier) + ", " + Math.round(iB*iOptionElementTextColourModifier) + ")");
-
-}
-
-//Reads all available colours from the DB and appends them to the option in the menu
-//data is an object containing all colours
-function initColourList(data){
-	const colourlist = data.colourlist;
-	//remove all previously added things first:
-	$('#id_sticky_options_form_colour div').remove('.colour_option');
-
-	for (i=0; i<colourlist.length; i++){
-		const optionFormat = 	'<div class="colour_option"><label class="clickable"><input type="radio" name="colour" value="' + colourlist[i][0] + '"/><strong>' + colourlist[i][1].toUpperCase() + '</strong></label></div>';
-		$("#id_sticky_options_form_colour").append($(optionFormat)); // Create & Append the new element
-
-		//set the text-colour to its respective stickynote colour
-		const iR = colourlist[i][2]
-		const iG = colourlist[i][3]
-		const iB = colourlist[i][4]
-		$("#id_sticky_options_form_colour label:eq(" + i + ")").css("color","rgb(" + iR + ", " + iG + ", " + iB + ")");
-
-		const temp = colourlist[i][0];
-		$("#id_sticky_options_form_colour label:eq(" + i + ")").on('click', function(e) {
-			print('Sticky Colour Changed: ' + temp);
-			iNewStickyColour = temp;
-			updateEditorColours(temp);
-		});
-	};
-
-	//set the checkbox of the current colour
-	$('#id_sticky_options_form_colour input[name=colour][value=' + iNewStickyColour + ']').prop('checked', true);
-}
-
-function updateEditorOptions(){
-	if (iSelectedSticky == 0){
-		$('.edit_only').hide();
-	}else{
-		$('.edit_only').show();
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-//Everything related to user handling
-
-//when logging in, save all stickies currently on the screen to the DB
-function onLogin(){
-	$('#id_dropdown_login').stop().slideUp();
-	bIsLoggedIn = true;
-
-	//Upload all stickies to the DB that were not already in there
-	let table = [];
-	for (i=0; i<tStickies.length; i++){
-		if (tStickies[i].id<=0) {
-			table.push(
-				JSON.stringify({
-					'id': 			tStickies[i].id,
-					'colour': 	tStickies[i].colour,
-					'title': 		tStickies[i].title,
-					'contents':	tStickies[i].contents,
-				})
-			);
-		}
-	}
-
-	//only upload stuff to the DB if there is stuff to upload
-	if (table.length > 0) {
-		saveStickynoteAJAX(table, function() {
-				//success function:
-				clearStickies(); //clear the stickies from the screen (we'll be readding them shortly)
-				retrieveCurrentUserStickies();
-		});
-	}else{
-		//otherwise only retrieve stuff
-		retrieveCurrentUserStickies();
-	}
-}
-
-//what happens when the user logs out
-function onLogout(){
-	$('#id_dropdown_logout').stop().slideUp();
-	bIsLoggedIn = false;
-	$('#id_login_button').text('LOGIN');
-	clearStickies();
-}
-
-//Retrieve all of the user's stickies from the DB (id, colour, title, etc.)
-function retrieveCurrentUserStickies(){
-	$.ajax({
-	    url: '/ajax/retrieve_current_user_data/',
-	    data: {},
-			type: 'GET',
-	    dataType: 'json',
-	    success: function (data) {
-					//fire the respective event:
-					evt = $.Event('UserDataRetrieved');
-					evt.state = data;
-					$(window).trigger(evt);
-
-					//Update the text to state 'Logged in'
-					$('#id_login_button').text('LOGGED IN (' + data.name + ')');
-
-					//Greeting to the user
-					$('#id_greeting_user').text('Hi ' + data.name + '!');
-
-					//Update the sticky table (with the stickies retrieved from the DB)
-					for (i=0; i<data.stickies.length; i++) {
-						if (!isAlreadyDisplayed(data.stickies[i].id)){
-							//create an instance
-							let pSticky = new Stickynote(data.stickies[i].colour, data.stickies[i].title, data.stickies[i].contents, data.stickies[i].id);
-							//add it to the table
-							tStickies.push(pSticky);
-							//add it to the screen
-							createStickynote(false, pSticky.colour);
-							//remove the 'new_sticky' class from the newly rendered sticky;
-							$( ".sticky_div:eq(-1)" ).removeClass("new_sticky");
-
-							//Add an onclick-listener
-							const temp = tStickies.length; //tStickies is a global variable, but we want the listener to always return the value this global had upon DECLARATION of the listener!
-							$('.sticky_div:eq(-1)').on('click', function(e) {
-								print('Existing Sticky Clicked: ' + temp);
-								iSelectedSticky = temp;
-								openStickyEditor();
-							});
-
-							iSelectedSticky = tStickies.length;
-						}
-					}
-					//Sort the stickies and update the screen (and log the result)
-					sortStickies();
-	    }
-	});
-}
-
-//sets the logged in boolean on page load. (I.e. extra handling in case the user is already logged in from a previous session)
-function checkLoginPageLoadAJAX(){
-	$.ajax({
-	    url: '/ajax/user_is_authenticated/',
-	    data: {},
-			type: 'GET',
-	    dataType: 'json',
-	    success: function (data) {
-					bIsLoggedIn = data.authenticated;
-					if (bIsLoggedIn) {
-						print('USER WAS ALREADY LOGGED IN FROM A PREVIOUS SESSION!');
-						onLogin();
-					}
-	    }
-	});
-}
 
 ////////////////////////////////////////////////////////////////////////////////////
 //Initialize Quill editor (used in the sticky editor)

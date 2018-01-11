@@ -37,22 +37,14 @@
           <span class="icon-bar"></span>
         </button>
       </div>
+
       <!--
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li id="asdf" class="clickable"><a id="id_login_button" href="#">LOGIN</a></li>
         </ul>
-    	-->
-        <!--
-    		<div id="id_div_login">
-    			<span id="id_login_button" class="clickable">LOGIN</span>
-    		</div>
-        -->
-      <!--
       </div>
       -->
-
-
       <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
       	{% with url_name=request.resolver_match.url_name %}
@@ -102,7 +94,6 @@
 
 
 
- 
 
   <!-- Login Form (old) -->
   <div id='id_dropdown_login' class='login-form hidden_elem'>
@@ -118,7 +109,7 @@
       </form>
     </div>
   </div>
-  <!--Logout form (old) -->
+  <!--Logout form (old)-->
   <div id="id_dropdown_logout" class='login-form hidden_elem'>
     <div class=''>
       <form id="id_logout_form">
@@ -129,11 +120,11 @@
   </div>
 
   {% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-  </ul>
+    <ul class="messages">
+     {% for message in messages %}
+      <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
+     {% endfor %}
+    </ul>
   {% endif %}
 
   {% block content %}

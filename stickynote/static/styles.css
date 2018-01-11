@@ -180,7 +180,7 @@ nav div li {
 
 .stickyNotesGrid {
 	display: grid;
-	grid-template-columns: 200px;
+	grid-template-columns: 200px 200px 200px 200px; /*Having rows that do not fit initially (before updated in JS) looks better than only having a single row*/
 	grid-template-rows: 200px;
 	margin: 44px 4px;
 	grid-auto-rows: 200px;
@@ -399,9 +399,6 @@ ul.errorlist {
 	font-size: 18px;
 	color: red;
 }
-.fieldWrapper {
-	margin-bottom: 10px;
-}
 
 .signup-wrapper {
 	padding-top: 5px;
@@ -495,8 +492,9 @@ span.show-login-name {
 
  .fieldWrapper {
  	padding-top: 10px;
- }
+	margin-bottom: 10px;
+}
 
- .fieldWrapper-extraspace {
- 	padding-top: 30px;
- }
+.fieldWrapper-extraspace {
+	padding-top: 30px;
+}
