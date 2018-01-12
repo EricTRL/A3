@@ -18,42 +18,47 @@ body {
 /*Navigation Style*/
 
 nav {
-  color: #EFEFEF;
-  margin: 4px 4px 0px 4px;
+	/*color: #EFEFEF;*/
+	margin: 4px 4px 0px 4px;
 	margin-bottom: 0px !important; /*bootstrap wanted to change things up again*/
 }
-  nav div {
-		background-color: #666667;
-	}
-	nav .navbar-brand {
-		/*Display the Brand Name + Image nicely next to each other*/
-		display: flex;
-	  align-items: center;
-	}
+nav div {
+	background-color: #666667;
+}
+nav .navbar-brand {
+	/*Display the Brand Name + Image nicely next to each other*/
+	display: flex;
+	align-items: center;
+}
 
-	#id_stickynote_img {
-		padding: 10px 0px 10px 10px;
-		width: 50px;
-	}
-	nav div div {
-		padding: 10px 10px 10px 10px;
-	}
-	nav .container-fluid {
-		padding: 0px 30px;
-	}
-	/*
-    nav div li {
-      letter-spacing: 0.1em;
-      padding: 1em 1.25em;
-	}
-	*/
+#id_stickynote_img {
+	padding: 10px 0px 10px 10px;
+	width: 50px;
+}
+
+/* Changed from 10 10 10 10 to 0 10 0 10 so that highlighting active tab looks better (by Robin) */
+nav div div {
+	padding: 0px 10px 0px 10px;
+}
+nav .container-fluid {
+	padding: 0px 30px;
+}
+/*
+nav div li {
+	letter-spacing: 0.1em;
+	padding: 1em 1.25em;
+}
+*/
 
 
 /*Override the bootstrap default blue colours*/
 /*Standard dropdown button colour changes after clkicking it once*/
+/*
 .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
     background-color: #666667 !important;
 }
+*/
+
 /*Standard dark-blue border*/
 .navbar-default .navbar-toggle {
     border-color: white !important;
@@ -61,11 +66,81 @@ nav {
 /*Standard background*/
 .navbar-default {
 	background-color: transparent !important;
-  border-color: transparent !important;
+	border-color: transparent !important;
 }
-.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
-	color: #EFEFEF !important;
-	background-color: transparent !important;
+
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #000000;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #b3acba;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #000000 !important;
+  background-color: #a8a8ab !important;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #000000;
+  background-color: #a8a8ab;
+}
+.navbar-default .navbar-toggle {
+  border-color: #a8a8ab;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #a8a8ab !important;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #000000;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #000000;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #000000;
+    background-color: #a8a8ab;
+  }
+}
+
+#navbar ul {
+	padding-bottom: 0;
+}
+
+#id_navbar .container-fluid {
+	border-radius: 10px;
 }
 
 /*=====================================================================================*/
