@@ -9,6 +9,7 @@ from random import randint #random number generator
 from django.http import JsonResponse #for AJAX requessts
 from django.http import HttpResponseRedirect #redirection for POST-requests
 from django.contrib.auth import authenticate, login, logout #authenticate, login, and logout users
+from django.contrib.auth.decorators import login_required # to require users to log in
 
 import json #for decoding JSON strings
 
@@ -21,6 +22,7 @@ from .serializers import ColourSerializer, StickynoteSerializer, UserSerializer
 from rest_framework import permissions #User permissions (I.e. extra admin priviliges)
 
 #Initial page load
+@login_required
 def page_load(request):
     stickies = [];
     groups = [];

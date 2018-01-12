@@ -139,6 +139,10 @@ nav div li {
 	padding-bottom: 0;
 }
 
+#id_navbar .container-fluid {
+	border-radius: 10px;
+}
+
 /*=====================================================================================*/
 /*Dropdown login/logout forms: */
 .login-form {

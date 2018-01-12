@@ -7,13 +7,6 @@
   <div id="STATICPATH" style="display:none">{% get_static_prefix %}</div>
 
 
-  {% if user.is_authenticated %}
-      <p>Logged in</p>
-    {%else%}
-      <p>NOT logged in</p>
-    {%endif%}
-
-
   {% for group in groups %}
     <div class="stickyNotesGrid">
       <div class="sticky_div">
