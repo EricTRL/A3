@@ -6,38 +6,113 @@
   <!--static path-->
   <div id="STATICPATH" style="display:none">{% get_static_prefix %}</div>
 
-
-  {% if user.is_authenticated %}
-      <p>Logged in</p>
-    {%else%}
-      <p>NOT logged in</p>
-    {%endif%}
-
-
   {% for group in groups %}
-    <div class="stickyNotesGrid">
-      <div class="sticky_div">
-        <div class='clickable group' id="group_{{group.id}}">
-          <img class='sticky_img sticky_add_img sticky_elem' src="{% static 'Images/stickynote_yellow.png' %}"/>
-          <img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
-          <p class='add_sticky_text sticky_elem'>Add Sticky</p>
+    <!--Edit Group buttons-->
+    <div id="group_head_{{group.id}}" class="group-block">
+      <div class="group-header">
+        <p class="wrap-word-newline" style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}})">{{group.title|upper}}</p>
+        <input id="id_input_group_{{group.id}}" name='group-title' style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                        box-shadow: 0 0 0px rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                        background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
+                  class="hidden_elem" value="{{group.title|upper}}" placeholder=""/>
+        <!--<div >-->
+          <div id="id_option_r_d_group_{{group.id}}" class="btn-group" role="group" aria-label="Rename|Delete">
+            <button type="button" style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                         border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                         background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
+                    class="btn btn-default btn-xs button_rename_group" id="id_rename_group_{{group.id}}">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+            </button>
+            {% if not group.cannotBeDeleted %}
+              <button type="button"  style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                            border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                            background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
+                    class="btn btn-default btn-xs button_delete_group" id="id_delete_group_{{group.id}}">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+              </button>
+            {% endif %}
+          </div>
+        <!--</div>-->
+        <!--Save/Discard title-->
+        <div id="id_option_c_c_group_{{group.id}}" class="hidden_elem btn-group" role="group" aria-label="Save|Cancel">
+          <button type="button"  style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                        border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                        background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
+                class="btn btn-default btn-xs button_confirm_rename_group" id="id_confirm_rename_group_{{group.id}}">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+          </button>
+          <button type="button"  style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                        border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                        background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
+                class="btn btn-default btn-xs button_cancel_rename_group" id="id_cancel_rename_group_{{group.id}}">
+                <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+          </button>
         </div>
       </div>
-    {% for sticky in stickies %}
-      <!--matching groups-->
-      {% if sticky.group_id == group.id %}
-        <div class="sticky_data sticky_div">
-          <div class="stickynote clickable" id=sticky_{{sticky.id}}>
-              <img class="sticky_img sticky_elem" src="{% get_static_prefix %}Images/stickynote_{{ sticky.colour|lower }}.png">
-              <p class="add_sticky_text sticky_elem">{{sticky.title}}</p>
-              <!--TODO: Add stickynote contents here as well-->
-            </div>
+
+      <!--Stickynotes grid -->
+      <div class="stickyNotesGrid group-body">
+        <div class="sticky_div">
+          <div class='clickable group' id="group_{{group.id}}">
+            <img class='sticky_img sticky_add_img sticky_elem' src="{% get_static_prefix %}Images/{{group.majorityColour.colour.filename}}"/>
+            <img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
+            <p class='add_sticky_text sticky_elem'>Add Sticky</p>
+          </div>
         </div>
-      {% endif %}
-    {% endfor %}
-  </div>
+        {% for sticky in stickies %}
+          <!--matching groups-->
+          {% if sticky.group_id == group.id %}
+            <div class="sticky_data sticky_div">
+              <div class="stickynote clickable" id=sticky_{{sticky.id}}>
+                  <img class="sticky_img sticky_elem" src="{% get_static_prefix %}Images/{{ sticky.colour.filename}}">
+                  <p class="add_sticky_text sticky_elem">{{sticky.title}}</p>
+                  <!--TODO: Add stickynote contents here as well-->
+                </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
   {% endfor %}
 
+  <!--ADD GROUP-->
+  <!--
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="input-group">
+        <span class="input-group-addon">
+          <input type="checkbox" aria-label="...">NOT Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+        </span>
+        <input type="text" class="form-control" aria-label="..." placeholder="Group Name">
+      </div>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <div class="input-group-btn">
+
+      <button type="button" class="btn btn-default">
+          NOT Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+      </button>
+    </div>
+    <input type="text" class="form-control" aria-label="groupname" placeholder="Group Name">
+  </div>
+-->
+
+  <div class="input-group">
+    <div class="input-group-btn">
+      <!-- Button and dropdown menu -->
+      <label class="btn btn-default">
+          <input id="id_new_group_is_shared" type="checkbox" aria-label="shared">
+          Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+      </label>
+    </div>
+    <input id="id_new_group_title" type="text" class="form-control" aria-label="groupname" placeholder="Group Name">
+  </div>
+<br>
+  <div id="id_add_group_button" class="btn-group" role="group" aria-label="addgroup">
+    <button type="button" class="btn btn-default btn-lg">Add Group <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></button>
+  </div>
 
   <!--Stickynote creation/edit screen-->
   <div class="popup popup_elem hidden_elem" id="id_popup_add_sticky">
@@ -61,7 +136,7 @@
   			</form>
         <div id="id_sticky_options_shared" class="sticky_option_element">
           <label class="clickable">
-            <input type="checkbox" class="clickable" name="shared" value="shared">Shared with Friends
+            <input type="checkbox" class="clickable" name="shared" value="shared">Shared with Friends <span class="glyphicon glyphicon-globe" aria-hidden="true">
           </label>
         </div>
 
@@ -100,4 +175,11 @@
   <!--Grey out the rest of the screen (to prevent button presses as well)-->
   <div class="hide_screen"></div>
   </div>
+{% endblock %}
+
+{% block JS %}
+    {{ block.super }} {# includes previous content in block #}
+    {# view-specific imports here: #}
+    <!--Import the JS file-->
+  	<script src="{% static 'index.js' %}"></script>
 {% endblock %}

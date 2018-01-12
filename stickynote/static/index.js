@@ -89,6 +89,74 @@ $(document).ready(function() {
 	      });
 	});
 	//////////////////////////////////////////////////////////////////////////////
+	//Renaming, deleting, and adding a Group
+
+	//Renaming:
+	$('.button_rename_group').on('click',function(e){
+			const iGroup = $(this).attr("id").substring("id_rename_group_".length);
+			//print($('#group_head_' + iGroup + ' input[name=group-title]').attr('name'))
+			$('#group_head_' + iGroup + ' .group-header p').hide();
+
+			$('#group_head_' + iGroup + ' input[name=group-title]').css('width',$('#group_head_' + iGroup + ' .group-header p').css('width'));
+			$('#group_head_' + iGroup + ' input[name=group-title]').show();
+
+			$('#id_option_r_d_group_' + iGroup + '').hide();
+			$('#id_option_c_c_group_' + iGroup + '').show();
+			$('#id_option_c_c_group_' + iGroup + '').css('display','inline-block'); //for whatever reason django likes adding display:block when unhiding the div
+
+			//set the cursor to the textbox
+			const input = document.getElementById('id_input_group_' + iGroup);
+			setCaretPosition(input, input.value.length);
+	});
+
+	//Confirming rename
+	$('.button_confirm_rename_group').on('click',function(e){
+		const iGroup = $(this).attr("id").substring("id_confirm_rename_group_".length);
+		const sTitle = $('#group_head_' + iGroup + ' input[name=group-title]').val();
+		$('#group_head_' + iGroup + ' .group-header p').text(sTitle);
+		$('#group_head_' + iGroup + ' .group-header p').show();
+		$('#group_head_' + iGroup + ' input[name=group-title]').hide();
+
+		$('#id_option_r_d_group_' + iGroup + '').show();
+		$('#id_option_c_c_group_' + iGroup + '').hide();
+																							//bShared (to be implemented)
+		set_or_create_group_by_id(iGroup, sTitle, false, null, null);
+
+	});
+
+	//Cancelling rename
+	$('.button_cancel_rename_group').on('click',function(e){
+		const iGroup = $(this).attr("id").substring("id_cancel_rename_group_".length);
+		$('#group_head_' + iGroup + ' input[name=group-title]').val($('#group_head_' + iGroup + ' .group-header p').text());
+		$('#group_head_' + iGroup + ' .group-header p').show();
+		$('#group_head_' + iGroup + ' input[name=group-title]').hide();
+
+		$('#id_option_r_d_group_' + iGroup + '').show();
+		$('#id_option_c_c_group_' + iGroup + '').hide();
+	});
+
+	//Deleting a group:
+	$('.button_delete_group').on('click',function(e){
+			const iGroup = $(this).attr("id").substring("id_rename_group_".length);
+
+			//update the DB
+			delete_group_by_id(iGroup,function(){
+				location.reload();
+			},null);
+	});
+
+	//Adding a group:
+	$('#id_add_group_button').on('click',function(e){
+		const sTitle = $('#id_new_group_title').val();
+		const bShared =$('#id_new_group_is_shared').is(":checked")
+		print(sTitle)
+		print(bShared)
+		set_or_create_group_by_id(-1, sTitle, bShared, function(){
+			location.reload();
+		}, null);
+	});
+
+	//////////////////////////////////////////////////////////////////////////////
 	//Creating/Saving a Stickynote
 
 	//What happens when the 'New Sticky' button is pressed
@@ -192,12 +260,14 @@ $(document).ready(function() {
 	print(STATICPATH)
 
 	//Randomize the Colour of the "Add Sticky" buttons
+	/*
 	const iNumGroups = $('.sticky_add_img').length
 	for (let i=0; i<iNumGroups; i++){
 		get_random_colour(function(_,_,_,_,_,_,sFilename){
 			$('.sticky_add_img:eq(' + i + ')').attr("src",STATICPATH + '/Images/' + sFilename);
 		});
 	}
+	*/
 
 	//update the grid each time the user zooms in or out
 	$(window).resize(function() {
@@ -279,6 +349,24 @@ function calculateGridSize() {
 	}
 }
 
+//sets cursor position
+// Credits: http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
+function setCaretPosition(ctrl, pos) {
+  // Modern browsers
+  if (ctrl.setSelectionRange) {
+    ctrl.focus();
+    ctrl.setSelectionRange(pos, pos);
+
+  // IE8 and below
+  } else if (ctrl.createTextRange) {
+    var range = ctrl.createTextRange();
+    range.collapse(true);
+    range.moveEnd('character', pos);
+    range.moveStart('character', pos);
+    range.select();
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //Sticky Editor Stuff:
 
@@ -300,9 +388,18 @@ function openStickyEditor(iID, bAppendNewSticky){
 		const iRandomRadioButton = Math.floor(Math.random()*iNumColoursToChooseFrom);
 		$('#id_sticky_options_form_colour .colour_option:eq(' + iRandomRadioButton + ')').trigger("click");
 
+		//Set the group-Dropdown
+		$("#id_sticky_options_group select").val(iID);
+
 		//show the popup
 		bAddStickyPopupIsActive = true;
 		$('#id_popup_add_sticky').stop().fadeIn();
+		//window.scrollTo(0, 0);
+
+		const body = $("html, body");
+		body.stop().animate({scrollTop:0}, 500, 'swing', function() {
+		   //upon finishing
+		});
 
 		//TODO (maybe): Append a "new sticky" on the screen for fancy visuals
 	}else{
@@ -463,6 +560,65 @@ function delete_sticky_by_id(iStickyID, onSuccess, onFail) {
 				url:"ajax/delete_sticky_by_id/",
 				data: {
 							'id': iStickyID,
+							},
+				success: function(){
+						print('SUCCESSFUL DELETE');
+						if (onSuccess != null){
+							onSuccess();
+						}
+				},
+				error: function(jqXHR, status, errorThrown) {
+						print('FAILED DELETE');
+
+						if (onFail != null){
+							onFail(jqXHR, status, errorThrown);
+						}
+				},
+	});
+}
+
+//
+function set_or_create_group_by_id(iGroupID, sTitle, bShared, onSuccess, onFail){
+	//set a valid CSRF token
+	setupSafeAjax();
+	//actually uplaod the stickies
+	$.ajax({
+				type:"POST",
+				url:"ajax/set_or_create_group_by_id/",
+				data: {
+							'id': 			iGroupID,
+							'title': 		sTitle,
+							'shared':		bShared,
+							},
+				success: function(){
+						print('SUCCESSFUL GROUP UPLOAD');
+						if (onSuccess != null){
+							onSuccess();
+						}
+
+				},
+				error: function(jqXHR, status, errorThrown) {
+						print('FAILED GROUP UPLOAD');
+
+						if (onFail != null){
+							onFail(jqXHR, status, errorThrown);
+						}
+
+						//print(jqXHR);
+				},
+	});
+}
+
+//TODO: COMMENT
+function delete_group_by_id(iGroupID, onSuccess, onFail) {
+	//set a valid CSRF token
+	setupSafeAjax();
+	//actually uplaod the stickies
+	$.ajax({
+				type:"POST",
+				url:"ajax/delete_group_by_id/",
+				data: {
+							'id': iGroupID,
 							},
 				success: function(){
 						print('SUCCESSFUL DELETE');

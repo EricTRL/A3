@@ -111,7 +111,8 @@ nav {
 	display: grid;
 	grid-template-columns: 200px 200px 200px 200px; /*Having rows that do not fit initially (before updated in JS) looks better than only having a single row*/
 	grid-template-rows: 200px;
-	margin: 44px 4px;
+	margin-left: 4px;
+	margin-right: 4px;
 	grid-auto-rows: 200px;
 	/*justify-content: space-evenly;*//*This doesn't work on most browsers, so it's done dynamically in js instead by changing the padding and grid-gap*/
 }
@@ -149,40 +150,27 @@ nav {
 }
 
 /*=====================================================================================*/
-/*Misc*/
+/*Group Blocks*/
 
-/*Hidden (menu) objects gain this class so that they're hidden by default.*/
-/*renamed to hidden_elem as bootstrap overrides this*/
-.hidden_elem {
-	display: none;
-}
-
-/*Fancy mousepointer for clickable elements. (class is toggled using JQuery)*/
-.clickable {
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	cursor: pointer;
-}
-
-/*Greyish transparent background that hides the entire screen*/
-.hide_screen{
-	z-index: 2000; /*bootstrap has high z-indexes as well, but we need even higher ones!*/
-	background-color: rgba(100,100,100,0.8)/*rgba(153, 158, 168, 0.8)*/;
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	left: 0;
-	top: 0;
-}
-
-.error_msg {
-	font-weight: bold;
-	color: rgb(153, 0, 0);
-	width: 100%;
-	text-align: center;
-}
+.group-block {
+	margin: 30px 4px;
+	}
+	.group-block > .group-header {
+			margin-left: 10px;
+		}
+		.group-block .group-header > p,
+		.group-block .group-header input,
+		.group-block .group-header div {
+			margin-left: 4px;
+			font-weight: 900;
+			font-size: 20px;
+			margin-bottom: 0px;
+			display: inline-block;
+			vertical-align: middle;
+			}
+		.group-block .group-header input {
+			max-width: 95%;
+		}
 
 /*=====================================================================================*/
 /*Popups:*/
@@ -252,7 +240,11 @@ nav {
 					display: inline-block;
 					width: auto;
 					vertical-align: top;
-				}
+			}
+			.popup div .body #id_sticky_options #id_sticky_options_group select{
+				text-overflow: ellipsis;
+				width: 100%;
+			}
 
 		.popup div .body #id_sticky_form {
 			/*width: 75%;*/
@@ -305,18 +297,6 @@ nav {
 }
 
 /*=====================================================================================*/
-/*Debugging:*/
-
-/*Used to see an element's borders easily*/
-* {
-	/*
-	border-width: 1px;
-	border-color: black;
-	border-style: solid;
- */
-}
-
-/*=====================================================================================*/
 /*Signup form (made by Robin): */
 
 ul.signup-req {
@@ -329,7 +309,8 @@ ul.errorlist {
 	color: red;
 }
 
-.signup-wrapper {
+.signup-wrapper,
+.stickyNotesGrid {
 	padding-top: 5px;
 	padding-bottom: 10px;
 	padding-left: 5px;
@@ -426,4 +407,70 @@ span.show-login-name {
 
 .fieldWrapper-extraspace {
 	padding-top: 30px;
+}
+
+/*=====================================================================================*/
+/*Misc*/
+
+/*Hidden (menu) objects gain this class so that they're hidden by default.*/
+/*renamed to hidden_elem as bootstrap overrides this*/
+.hidden_elem,
+.group-block .group-header .hidden_elem {
+	display: none;
+}
+
+/*Fancy mousepointer for clickable elements. (class is toggled using JQuery)*/
+.clickable {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: pointer;
+}
+
+/*Greyish transparent background that hides the entire screen*/
+.hide_screen{
+	z-index: 2000; /*bootstrap has high z-indexes as well, but we need even higher ones!*/
+	background-color: rgba(100,100,100,0.8)/*rgba(153, 158, 168, 0.8)*/;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	left: 0;
+	top: 0;
+}
+
+.error_msg {
+	font-weight: bold;
+	color: rgb(153, 0, 0);
+	width: 100%;
+	text-align: center;
+}
+
+.wrap-word-newline {
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+
+	-ms-word-break: break-all;
+	/* This is the dangerous one in WebKit, as it breaks things wherever */
+	word-break: break-all;
+	/* Instead use this non-standard one: */
+	word-break: break-word;
+
+	/* Adds a hyphen where the word breaks, if supported (No Blink) */
+	-ms-hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	hyphens: auto;
+}
+
+/*=====================================================================================*/
+/*Debugging:*/
+
+/*Used to see an element's borders easily*/
+* {
+	/*
+	border-width: 1px;
+	border-color: black;
+	border-style: solid;
+	*/
 }

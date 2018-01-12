@@ -3,7 +3,8 @@ from django.contrib.auth.models import User #the user DB table
 from .models import Stickynote, Colour, Friend, Collaborator, Group #DB tables
 from django.utils import timezone #timezone-data
 
-from django.shortcuts import render
+from django.db.models import Count    #Count
+from django.shortcuts import render #rendering
 
 from random import randint #random number generator
 from django.http import JsonResponse #for AJAX requessts
@@ -26,10 +27,32 @@ def page_load(request):
     groups = [];
     colours = [];
 
+    iGroupHeaderColourModifier = 0.75;
+
     if request.user.is_authenticated:
         stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
         print(stickies)
         groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
+
+
+        for group in groups:
+            groupStickies = Stickynote.objects.filter(group_id=group.id);
+            print(groupStickies)
+            print("----")
+            majorityColour = groupStickies.values("colour_id").annotate(Count("id")).order_by('-id__count');
+            print(majorityColour)
+            majorityColour = majorityColour[0] if majorityColour.count() > 0 else {'colour_id': GetRandomColour().id,'id__count': 0};
+            print(majorityColour)
+            #majorityColour = Colour.objects.get(id=majorityColour.colour_id);
+            majorityColour['r'] = round(Colour.objects.get(id=majorityColour['colour_id']).r*iGroupHeaderColourModifier);
+            majorityColour['g'] = round(Colour.objects.get(id=majorityColour['colour_id']).b*iGroupHeaderColourModifier);
+            majorityColour['b'] = round(Colour.objects.get(id=majorityColour['colour_id']).g*iGroupHeaderColourModifier);
+            majorityColour['a'] = Colour.objects.get(id=majorityColour['colour_id']).a;
+            majorityColour['colour'] = Colour.objects.get(id=majorityColour['colour_id']);
+
+            print(majorityColour['colour'].filename)
+            print(majorityColour);
+            group.majorityColour = majorityColour;
         print(groups)
         colours = Colour.objects.all().order_by('name');
         print(colours)
@@ -90,8 +113,6 @@ def set_or_create_sticky_by_id(request, *args, **kwargs):
         iGroup = Group.objects.get(id=iGroup).id if Group.objects.filter(id=iGroup).exists() else Group.objects.filter(cannotBeDeleted=True,author_id=request.user.id).order_by('id')[0].id
         bShared = request.POST.get('shared', False) == 'true';
 
-        #print("blaaaaargh "+str(pGroup.id))
-
         iID = request.POST.get('id', -1)
         if Stickynote.objects.filter(id=iID).exists():
             #Already Exists: so we update it
@@ -109,7 +130,6 @@ def set_or_create_sticky_by_id(request, *args, **kwargs):
 
             pSticky.save()
         else:
-            print(bShared)
             #Does not yet exist: so we create a new one
             Stickynote.objects.create(title=sTitle, contents=sContents, created_date=timezone.now(), shared=bShared, colour_id=iColour, group_id=iGroup);
         return HttpResponseRedirect('/'); #SUCCESSFUL
@@ -127,10 +147,9 @@ def delete_sticky_by_id(request, *args, **kwargs):
     return HttpResponseRedirect('') #FAILED
 
 
-#get a random sticky colour from those in the DB
+#get a random sticky colour from those in the DB and send it back via AJAX
 def get_random_colour(request):
-    iRandomIndex = randint(0, Colour.objects.count() - 1)
-    pRandomColour = Colour.objects.all()[iRandomIndex]
+    pRandomColour = GetRandomColour();
 
     data = {
         'id':       pRandomColour.id,
@@ -144,7 +163,11 @@ def get_random_colour(request):
     print(data)
     return JsonResponse(data)
 
-
+#get a random sticky colour from those in the DB
+def GetRandomColour():
+    iRandomIndex = randint(0, Colour.objects.count() - 1);
+    pRandomColour = Colour.objects.all()[iRandomIndex];
+    return pRandomColour;
 
 '''
 #Get all stickynote colours (and their RGB-values from the DB)
@@ -234,7 +257,58 @@ def user_is_authenticated(request):
         return JsonResponse({'authenticated': True})
     return JsonResponse({'authenticated': False})
 
+################################################################################
+#Groups:
 
+#
+#
+def set_or_create_group_by_id(request, *args, **kwargs):
+    #Must be logged in (otherwise there's nowhere to save to)
+    if request.user.is_authenticated:
+        sTitle = request.POST.get('title', '');
+        bShared = request.POST.get('shared', False) == 'true';
+
+        iID = request.POST.get('id', -1)
+        if Group.objects.filter(id=iID).exists():
+            #Already Exists: so we update it
+            pGroup = Group.objects.get(id=iID)
+
+            #Sanity check. No wiping other user's groups (this should never happen)
+            if Group.objects.filter(author_id=request.user.id).count() <= 0: return HttpResponseRedirect('') #FAILED
+
+            pGroup.title = sTitle;
+            pGroup.shared = bShared;
+            pGroup.last_edit_date = timezone.now();
+
+            pGroup.save()
+        else:
+            #Does not yet exist: so we create a new one
+            Group.objects.create(title=sTitle, created_date=timezone.now(), shared=bShared, author_id=request.user.id, cannotBeDeleted=False);
+        return HttpResponseRedirect('/'); #SUCCESSFUL
+    return HttpResponseRedirect('') #FAILED
+
+
+#Delete a single group from the DB (with a given id).
+#WARNING: Also deletes ALL stickies associated with this Group!
+def delete_group_by_id(request, *args, **kwargs):
+    if request.user.is_authenticated:
+        iID = request.POST.get('id', -1)
+        #the given ID should actually exist and MUST be of the currently logged in user (no wiping other's groups/stickies!)
+        if Group.objects.filter(id=iID,author_id=request.user.id).exists():
+            pGroup = Group.objects.get(id=iID,author_id=request.user.id);
+            #Non-deletable groups cannot be deleted (outside of the admin-panel)
+            if not pGroup.cannotBeDeleted:
+                #Delete all stickies in this group first
+                tStickies = Stickynote.objects.filter(group_id=iID);
+
+                for sticky in tStickies:
+                    sticky.delete();
+
+                #Actually Delete the Group
+                pGroup.delete();
+
+                return HttpResponseRedirect('/'); #SUCCESSFUL
+    return HttpResponseRedirect('') #FAILED
 ################################################################################
 #REST API
 
