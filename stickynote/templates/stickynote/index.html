@@ -14,26 +14,32 @@
         <input id="id_input_group_{{group.id}}" name='group-title' style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         box-shadow: 0 0 0px rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
-                  class="hidden_elem" value="{{group.title|upper}}" placeholder=""/>
+                  class="hidden_elem caps_input" value="{{group.title|upper}}" placeholder=""/>
         <!--<div >-->
           <div id="id_option_r_d_group_{{group.id}}" class="btn-group" role="group" aria-label="Rename|Delete">
             <button type="button" style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                          border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                          background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
                     class="btn btn-default btn-xs button_rename_group" id="id_rename_group_{{group.id}}">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    Rename <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
             </button>
+            <label type="button" class="btn btn-default btn-xs" style=" color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                         border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+                                         background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});">
+              <input class="button_share_group clickable" id="id_share_group_{{group.id}}" {{ group.shared|yesno:"checked," }} name="shared" type="checkbox" aria-label="shared">
+              Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+            </label>
             {% if not group.cannotBeDeleted %}
               <button type="button"  style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                             border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                             background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
                     class="btn btn-default btn-xs button_delete_group" id="id_delete_group_{{group.id}}">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    Delete Group <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
               </button>
             {% endif %}
           </div>
         <!--</div>-->
-        <!--Save/Discard title-->
+        <!--Confirm/Cancel title-->
         <div id="id_option_c_c_group_{{group.id}}" class="hidden_elem btn-group" role="group" aria-label="Save|Cancel">
           <button type="button"  style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         border-color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
@@ -70,7 +76,6 @@
                   <div class="sticky_elem sticky_textdata">
                     <p class="add_sticky_text">{{sticky.title}}</p>
                     <div class="add_sticky_contents hidden_elem">{{sticky.contents}}</div>
-                    <!--TODO: Add stickynote contents here as well-->
                   </div>
                 </div>
             </div>
@@ -108,7 +113,7 @@
     <div class="input-group-btn">
       <!-- Button and dropdown menu -->
       <label class="btn btn-default">
-          <input id="id_new_group_is_shared" type="checkbox" aria-label="shared">
+          <input id="id_new_group_is_shared" class="clickable" type="checkbox" aria-label="shared">
           Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
       </label>
     </div>
@@ -132,15 +137,16 @@
   				<h3>Sticky Colour:</h3>
           {% for colour in colours %}
             <!--Colourlist-->
-            <div id="colour_{{colour.id}}" class="colour_option">
+            <div>
               <label class="clickable" style="color:rgba({{colour.r}},{{colour.g}},{{colour.b}},{{colour.a}});">
-                <input type="radio" class="clickable" name="colour" value="{{colour.id}}"/><strong>{{colour.name|upper}}</strong>
+                <input id="colour_{{colour.id}}" type="radio" class="colour_option clickable" name="colour" value="{{colour.id}}"/><strong>{{colour.name|upper}}</strong>
               </label>
             </div>
           {% endfor %}
   			</form>
         <div id="id_sticky_options_shared" class="sticky_option_element">
-          <label class="clickable">
+          <label class="show_if_group_shared"><span class='sticky_autoshare'><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Auto-shared as Group is shared</span></label>
+          <label class="hide_if_group_shared clickable">
             <input type="checkbox" class="clickable" name="shared" value="shared">Shared with Friends <span class="glyphicon glyphicon-globe" aria-hidden="true">
           </label>
         </div>

@@ -318,7 +318,7 @@ nav div li {
 				width: 100%;
 				margin: 0px;
 				word-wrap: break-word;
-			}
+				} /*fffffffffffffffff*/
 				.popup div .body #id_sticky_options .sticky_option_element div label,
 				.popup div .body #id_sticky_options .sticky_option_element div input,
 				.popup div .body #id_sticky_options .sticky_option_element div h3,
@@ -368,6 +368,9 @@ nav div li {
 		}
 	.popup .sticky_edit {
 		width: 100%;
+	}
+	.popup .sticky_autoshare {
+		color: #a94442;;
 	}
 
 /*=====================================================================================*/
@@ -547,6 +550,10 @@ span.show-login-name {
 	-moz-hyphens: auto;
 	-webkit-hyphens: auto;
 	hyphens: auto;
+}
+
+.caps_input {
+	text-transform:uppercase;
 }
 
 /*=====================================================================================*/
