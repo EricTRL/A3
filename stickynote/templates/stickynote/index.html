@@ -56,7 +56,9 @@
           <div class='clickable group' id="group_{{group.id}}">
             <img class='sticky_img sticky_add_img sticky_elem' src="{% get_static_prefix %}Images/{{group.majorityColour.colour.filename}}"/>
             <img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
-            <p class='add_sticky_text sticky_elem'>Add Sticky</p>
+            <div class="sticky_elem sticky_textdata">
+              <p class='add_sticky_text sticky_elem'>Add Sticky</p>
+            </div>
           </div>
         </div>
         {% for sticky in stickies %}
@@ -65,8 +67,11 @@
             <div class="sticky_data sticky_div">
               <div class="stickynote clickable" id=sticky_{{sticky.id}}>
                   <img class="sticky_img sticky_elem" src="{% get_static_prefix %}Images/{{ sticky.colour.filename}}">
-                  <p class="add_sticky_text sticky_elem">{{sticky.title}}</p>
-                  <!--TODO: Add stickynote contents here as well-->
+                  <div class="sticky_elem sticky_textdata">
+                    <p class="add_sticky_text">{{sticky.title}}</p>
+                    <div class="add_sticky_contents hidden_elem">{{sticky.contents}}</div>
+                    <!--TODO: Add stickynote contents here as well-->
+                  </div>
                 </div>
             </div>
           {% endif %}
@@ -180,6 +185,25 @@
 {% block JS %}
     {{ block.super }} {# includes previous content in block #}
     {# view-specific imports here: #}
+    <!--Quill handling of the sticky contents-->
+    <script type="text/javascript">
+      $(document).ready(function() {
+          {# Set Contents on the notes themselves. Quill has no easy way to #}
+          {# convert to html outside of its editor, so we have to use this hacky way #}
+
+          $('.add_sticky_contents').each(function(index){
+            $(this).html(quillGetHTML(JSON.parse($(this).text())));
+            $(this).show();
+          });
+
+          //https://stackoverflow.com/questions/39519950/convert-quill-delta-to-html/39547833#39547833
+          function quillGetHTML(inputDelta) {
+            var tempCont = document.createElement("div");
+            (new Quill(tempCont)).setContents(inputDelta);
+            return tempCont.getElementsByClassName("ql-editor")[0].innerHTML;
+          }
+      });
+    </script>
     <!--Import the JS file-->
   	<script src="{% static 'index.js' %}"></script>
 {% endblock %}

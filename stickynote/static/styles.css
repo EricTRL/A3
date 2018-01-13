@@ -205,6 +205,14 @@ nav div li {
 	bottom: 0;
 	margin: auto;
 	display: block;
+	overflow: hidden;
+}
+
+.sticky_textdata {
+	width: 85%;
+	margin: 8% auto;
+	word-wrap: break-word;
+	color: #EFEFEF;
 }
 
 .sticky_img {
@@ -216,12 +224,15 @@ nav div li {
 }
 
 .add_sticky_text {
-	width: 85%;
-	margin: 10% auto;
-	color: #EFEFEF;
+	font-size: 18px;
+	margin-bottom: 0px;
 	font-weight: bold;
-	overflow:hidden;
-	word-wrap: break-word;
+}
+
+.add_sticky_contents {
+	font-size: 14px;
+	margin-top: 0px;
+	text-align: left;
 }
 
 /*=====================================================================================*/

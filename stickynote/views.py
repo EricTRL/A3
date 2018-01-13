@@ -36,7 +36,16 @@ def page_load(request):
         print(stickies)
         groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
 
+        #Get the "contents"-JSON and convert it.
+        for sticky in stickies:
+            print("----------------------------------------")
+            print(sticky.contents)
+            sContents = json.loads(sticky.contents);
+            print(sContents);
+            print('----------------------------------------')
+            #hi there
 
+        #Get&Set the colour that most stickies in a group have.
         for group in groups:
             groupStickies = Stickynote.objects.filter(group_id=group.id);
             print(groupStickies)
