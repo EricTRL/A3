@@ -499,6 +499,12 @@ span.show-login-name {
 }
 
 /*=====================================================================================*/
+/*Friends page*/
+#id_search_friends_result > * {
+	display: inline-block;
+}
+
+/*=====================================================================================*/
 /*Misc*/
 
 /*Hidden (menu) objects gain this class so that they're hidden by default.*/
