@@ -89,6 +89,81 @@ $(document).ready(function() {
 	      });
 	});
 	//////////////////////////////////////////////////////////////////////////////
+	//Renaming, deleting, sharing, and adding a Group
+
+	//Renaming:
+	$('.button_rename_group').on('click',function(e){
+			const iGroup = $(this).attr("id").substring("id_rename_group_".length);
+			//print($('#group_head_' + iGroup + ' input[name=group-title]').attr('name'))
+			$('#group_head_' + iGroup + ' .group-header p').hide();
+
+			$('#group_head_' + iGroup + ' input[name=group-title]').css('width',$('#group_head_' + iGroup + ' .group-header p').css('width'));
+			$('#group_head_' + iGroup + ' input[name=group-title]').show();
+
+			$('#id_option_r_d_group_' + iGroup + '').hide();
+			$('#id_option_c_c_group_' + iGroup + '').show();
+			$('#id_option_c_c_group_' + iGroup + '').css('display','inline-block'); //for whatever reason django likes adding display:block when unhiding the div
+
+			//set the cursor to the textbox
+			const input = document.getElementById('id_input_group_' + iGroup);
+			setCaretPosition(input, input.value.length);
+	});
+
+	//Confirming rename
+	$('.button_confirm_rename_group').on('click',function(e){
+		const iGroup = $(this).attr("id").substring("id_confirm_rename_group_".length);
+		const sTitle = $('#group_head_' + iGroup + ' input[name=group-title]').val().toUpperCase();
+		$('#group_head_' + iGroup + ' .group-header p').text(sTitle);
+		$('#group_head_' + iGroup + ' .group-header p').show();
+		$('#group_head_' + iGroup + ' input[name=group-title]').hide();
+
+		$('#id_option_r_d_group_' + iGroup + '').show();
+		$('#id_option_c_c_group_' + iGroup + '').hide();
+
+		set_or_create_group_by_id(iGroup, sTitle, null, null, null);
+
+	});
+
+	//Cancelling rename
+	$('.button_cancel_rename_group').on('click',function(e){
+		const iGroup = $(this).attr("id").substring("id_cancel_rename_group_".length);
+		$('#group_head_' + iGroup + ' input[name=group-title]').val($('#group_head_' + iGroup + ' .group-header p').text());
+		$('#group_head_' + iGroup + ' .group-header p').show();
+		$('#group_head_' + iGroup + ' input[name=group-title]').hide();
+
+		$('#id_option_r_d_group_' + iGroup + '').show();
+		$('#id_option_c_c_group_' + iGroup + '').hide();
+	});
+
+	//Deleting a group:
+	$('.button_delete_group').on('click',function(e){
+			const iGroup = $(this).attr("id").substring("id_rename_group_".length);
+
+			//update the DB
+			delete_group_by_id(iGroup,function(){
+				location.reload();
+			},null);
+	});
+
+	//Sharing (or un-sharing) a group
+	$('.button_share_group').on('click', function(e){
+			const iGroup = $(this).attr("id").substring("id_share_group_".length);
+			const bShared =$(this).is(":checked");
+
+			set_or_create_group_by_id(iGroup, null, bShared, null, null);
+	});
+
+	//Adding a group:
+	$('#id_add_group_button').on('click',function(e){
+		const sTitle = $('#id_new_group_title').val();
+		const bShared =$('#id_new_group_is_shared').is(":checked")
+
+		set_or_create_group_by_id(-1, sTitle, bShared, function(){
+			location.reload();
+		}, null);
+	});
+
+	//////////////////////////////////////////////////////////////////////////////
 	//Creating/Saving a Stickynote
 
 	//What happens when the 'New Sticky' button is pressed
@@ -149,8 +224,7 @@ $(document).ready(function() {
 
 	//When Clicking a Colour Radio Button, update the Editor's Colours as well
 	$('.colour_option').on('click', function(e) {
-
-		$("input[name=colour]", this).prop('checked', true);
+		//$("input[name=colour]", this).prop('checked', true);
 		const iID = $(this).attr("id").substring("colour_".length)
 		print('Sticky Colour Changed: ' + iID);
 
@@ -158,7 +232,22 @@ $(document).ready(function() {
 			//Update the Editor Colours
 			UpdateEditorColours(data.r, data.g, data.b, data.a, data.filename);
 		});
-		return false;
+	});
+
+	//When the dropdown selection is changed, see if the group-sharing also changes
+	//Some elements may need to show/hide based on the group-shared value
+	$('#id_sticky_options_group select').change(function(e){
+		const iGroupID = $(this).val();
+		
+		get_group_by_id(iGroupID, function(data){
+			if (data.shared){
+				$('.show_if_group_shared').show();
+				$('.hide_if_group_shared').hide();
+			}else{
+				$('.show_if_group_shared').hide();
+				$('.hide_if_group_shared').show();
+			}
+		});
 	});
 
 	//What happens when the 'Delete Sticky' option is clicked
@@ -192,12 +281,14 @@ $(document).ready(function() {
 	print(STATICPATH)
 
 	//Randomize the Colour of the "Add Sticky" buttons
+	/*
 	const iNumGroups = $('.sticky_add_img').length
 	for (let i=0; i<iNumGroups; i++){
 		get_random_colour(function(_,_,_,_,_,_,sFilename){
 			$('.sticky_add_img:eq(' + i + ')').attr("src",STATICPATH + '/Images/' + sFilename);
 		});
 	}
+	*/
 
 	//update the grid each time the user zooms in or out
 	$(window).resize(function() {
@@ -279,6 +370,24 @@ function calculateGridSize() {
 	}
 }
 
+//sets cursor position
+// Credits: http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
+function setCaretPosition(ctrl, pos) {
+  // Modern browsers
+  if (ctrl.setSelectionRange) {
+    ctrl.focus();
+    ctrl.setSelectionRange(pos, pos);
+
+  // IE8 and below
+  } else if (ctrl.createTextRange) {
+    var range = ctrl.createTextRange();
+    range.collapse(true);
+    range.moveEnd('character', pos);
+    range.moveStart('character', pos);
+    range.select();
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //Sticky Editor Stuff:
 
@@ -296,13 +405,22 @@ function openStickyEditor(iID, bAppendNewSticky){
 		$(".popup_title").text("Create Sticky");
 
 		//select a random radio button colour
-		const iNumColoursToChooseFrom = $('#id_sticky_options_form_colour > .colour_option').length;
+		const iNumColoursToChooseFrom = $('#id_sticky_options_form_colour .colour_option').length;
 		const iRandomRadioButton = Math.floor(Math.random()*iNumColoursToChooseFrom);
 		$('#id_sticky_options_form_colour .colour_option:eq(' + iRandomRadioButton + ')').trigger("click");
+
+		//Set the group-Dropdown
+		$("#id_sticky_options_group select").val(iID);
 
 		//show the popup
 		bAddStickyPopupIsActive = true;
 		$('#id_popup_add_sticky').stop().fadeIn();
+		//window.scrollTo(0, 0);
+
+		const body = $("html, body");
+		body.stop().animate({scrollTop:0}, 500, 'swing', function() {
+		   //upon finishing
+		});
 
 		//TODO (maybe): Append a "new sticky" on the screen for fancy visuals
 	}else{
@@ -320,14 +438,20 @@ function openStickyEditor(iID, bAppendNewSticky){
 				UpdateEditorColours(data2.r, data2.g, data2.b, data2.a, data2.filename);
 
 				//Set the correct Radio Button
-				$('#colour_' + data.colour_id + ' input[name=colour]').prop('checked', true);
+				$('#colour_' + data.colour_id).prop('checked', true);
 
-				//Set the shared-checkbox
-				$("#id_sticky_options_shared input[name=shared]").prop('checked',data.shared)
+				//Set the shared-checkbox (if appropriate)
+				if (data.group_is_shared){
+					$('.show_if_group_shared').show();
+					$('.hide_if_group_shared').hide();
+				}else{
+					$('.show_if_group_shared').hide();
+					$('.hide_if_group_shared').show();
+					$("#id_sticky_options_shared input[name=shared]").prop('checked',data.shared)
+				}
 
 				//Set the group-Dropdown
 				$("#id_sticky_options_group select").val(data.group_id);
-
 
 				//If that all has been done, we can finally actually open the editor
 				bAddStickyPopupIsActive = true;
@@ -388,12 +512,19 @@ function get_sticky_by_id(iStickyID,func) {
 			type: 'GET',
 	    dataType: 'json',
 	    success: function (data) {
-					/*
-					//fire the respective event:
-					evt = $.Event('ColourDataRetrieved');
-					evt.state = data;
-					$(window).trigger(evt);
-					*/
+					func(data)
+	    }
+	});
+}
+
+//TODO: COMMENT
+function get_group_by_id(iGroupID,func) {
+	$.ajax({
+	    url: '/ajax/get_group_by_id/',
+	    data: {'iGroupID': iGroupID},
+			type: 'GET',
+	    dataType: 'json',
+	    success: function (data) {
 					func(data)
 	    }
 	});
@@ -407,12 +538,6 @@ function get_colour_by_id(iColourID,func) {
 			type: 'GET',
 	    dataType: 'json',
 	    success: function (data) {
-					/*
-					//fire the respective event:
-					evt = $.Event('ColourDataRetrieved');
-					evt.state = data;
-					$(window).trigger(evt);
-					*/
 					func(data)
 	    }
 	});
@@ -463,6 +588,66 @@ function delete_sticky_by_id(iStickyID, onSuccess, onFail) {
 				url:"ajax/delete_sticky_by_id/",
 				data: {
 							'id': iStickyID,
+							},
+				success: function(){
+						print('SUCCESSFUL DELETE');
+						if (onSuccess != null){
+							onSuccess();
+						}
+				},
+				error: function(jqXHR, status, errorThrown) {
+						print('FAILED DELETE');
+
+						if (onFail != null){
+							onFail(jqXHR, status, errorThrown);
+						}
+				},
+	});
+}
+
+//Sends an AJAX-request to the backend to update the group with a given ID
+//If such group does not exist, it is created (not neccesarily with the given ID)
+//Can pass null to bShared and/or sTitle to not update the value(s).
+function set_or_create_group_by_id(iGroupID, sTitle, bShared, onSuccess, onFail){
+	//set a valid CSRF token
+	setupSafeAjax();
+	//actually uplaod the stickies
+	$.ajax({
+				type:"POST",
+				url:"ajax/set_or_create_group_by_id/",
+				data: {
+							'id': 			iGroupID,
+							'title': 		sTitle == null ? undefined : sTitle, //if null was passed, we send undefined instead (as null gets converted to an empty string by python)
+							'shared':		bShared == null ? undefined : bShared,
+							},
+				success: function(){
+						print('SUCCESSFUL GROUP UPLOAD');
+						if (onSuccess != null){
+							onSuccess();
+						}
+				},
+				error: function(jqXHR, status, errorThrown) {
+						print('FAILED GROUP UPLOAD');
+
+						if (onFail != null){
+							onFail(jqXHR, status, errorThrown);
+						}
+
+						//print(jqXHR);
+				},
+	});
+}
+
+//TODO: COMMENT
+function delete_group_by_id(iGroupID, onSuccess, onFail) {
+	//set a valid CSRF token
+	setupSafeAjax();
+	//actually uplaod the stickies
+	$.ajax({
+				type:"POST",
+				url:"ajax/delete_group_by_id/",
+				data: {
+							'id': iGroupID,
 							},
 				success: function(){
 						print('SUCCESSFUL DELETE');

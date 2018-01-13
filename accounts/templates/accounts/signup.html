@@ -5,6 +5,9 @@
     <div class="row">
         <div class="col-md-8 signup-wrapper">
 		    <h1>Sign up</h1>
+		    <div class='redirect-to-login'>
+		    	<p>Already have an account? <a href="{% url 'accounts:login' %}">Log in here!</a></p>
+		    </div>
 		    <hr>
 		    <form method="POST" class="signup-form" >{% csrf_token %}
 		    	<div class="fieldWrapper">

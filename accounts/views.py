@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required #require users to be l
 from django.contrib import messages
 from django.contrib.auth.models import User
 
-
 from accounts.forms import UpdateAccountForm, FirstLastNameForm
+from stickynote.models import Group
 
 # Create your views here.
 
@@ -20,6 +20,8 @@ def signup_view(request):
 				user.first_name = formNames.cleaned_data['first_name']
 				user.last_name = formNames.cleaned_data['last_name']
 				user.save()
+				# create a general, undeletable group to have a starting sticky
+				group = Group.objects.create(title='General', author=user, shared = False, cannotBeDeleted = True)
 				# log the user in here!
 				login(request, user)
 				return redirect('stickynote:page_load')
