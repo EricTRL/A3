@@ -556,6 +556,10 @@ span.show-login-name {
 	text-transform:uppercase;
 }
 
+.input-group-btn .btn-default {
+	padding-bottom: 4px;
+}
+
 /*=====================================================================================*/
 /*Debugging:*/
 
