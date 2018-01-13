@@ -49,7 +49,7 @@
       <ul class="nav navbar-nav">
       	{% with url_name=request.resolver_match.url_name %}
         <li{% if url_name == 'page_load' %} class="active"{% endif %}><a href="{% url 'stickynote:page_load' %}">Home</a></li>
-        <li><a href="#">Friend_Menu_Placeholder</a></li>
+        <li{% if url_name == 'friends_page' %} class="active"{% endif %}><a href="{% url 'friends:friends_page' %}">Friends_menu</a></li>
         {% endwith %}
       </ul>
 
