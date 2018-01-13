@@ -556,8 +556,10 @@ span.show-login-name {
 	text-transform:uppercase;
 }
 
-.input-group-btn .btn-default {
-	padding-bottom: 4px;
+.button_share_group,
+#id_new_group_is_shared {
+	/*bootstrap fix: Bootstrap gives checkboxes and radio buttons a weird 4px top-margin*/
+	margin-top: 0px !important;
 }
 
 /*=====================================================================================*/
