@@ -4,7 +4,7 @@
 {% block content %}
 <div class="content container">
     <div class="row">
-        <div class="col-md-8 signup-wrapper">
+        <div class="signup-wrapper">
 		    <h1>Add a friend</h1>
 		    <hr>
 		    <form method="POST" class="add-friends-form" >{% csrf_token %}
@@ -39,7 +39,7 @@
 </div>
     <div class="content container">
         <div class="row">
-            <div class="col-md-8 signup-wrapper">
+            <div class="signup-wrapper">
     		    <h1>Pending friend requests</h1>
     		    <hr>
     		    <form method="POST" class="add-friends-form" >{% csrf_token %}
@@ -54,7 +54,7 @@
 
 <div class="content container">
     <div class="row">
-        <div class="col-md-8 signup-wrapper">
+        <div class="signup-wrapper">
         <h1>Incoming friend requests</h1>
         <hr>
         <form method="POST" class="add-friends-form" >{% csrf_token %}

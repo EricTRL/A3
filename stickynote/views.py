@@ -1,6 +1,7 @@
 
 from django.contrib.auth.models import User #the user DB table
-from .models import Stickynote, Colour, Friend, Collaborator, Group #DB tables
+from .models import Stickynote, Colour, Group #DB tables
+from friends.models import Friend, Collaborator, FriendRequest #DB tables
 from django.utils import timezone #timezone-data
 
 from django.db.models import Count    #Count

@@ -66,33 +66,6 @@ class Colour(models.Model):
     def __str__(self):
         return self.name
 
-#Friends
-class Friend(models.Model):
-    user1 = models.ForeignKey( #the one who took the initiative to make a request
-            'auth.User',
-            on_delete=models.CASCADE,
-            related_name="user1",
-            )
-    user2 = models.ForeignKey( #the one who was sent the request
-            'auth.User',
-            on_delete=models.CASCADE,
-            related_name="user2",
-            )
-    accepted = models.BooleanField(default=False) #whether the request has been accepted
-
-#Collaboraters (I.e. those who can view AND edit a specific stickynote)
-class Collaborator(models.Model):
-    user = models.ForeignKey(
-            'auth.User',
-            on_delete=models.CASCADE,
-            )
-    stickynote = models.ForeignKey(
-            'Stickynote',
-            on_delete=models.CASCADE,
-            )
-    viewOnly = models.BooleanField(default=True) #Add specific people that can view your sticky as opposed to all your friends
-    hidden = models.BooleanField(default=False) #allow hidden collaboraters (only the author of the sticky can view hidden collaboraters)
-
 #Stickynote Group Entry
 class Group(models.Model):
     author = models.ForeignKey(

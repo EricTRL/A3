@@ -1,6 +1,7 @@
 
 from django.contrib.auth.models import User #the user DB table
-from stickynote.models import Stickynote, Colour, Friend, Collaborator, Group #DB tables
+from stickynote.models import Stickynote, Colour, Group #DB tables
+from friends.models import Friend, Collaborator, FriendRequest
 from django.utils import timezone #timezone-data
 
 from django.shortcuts import render
