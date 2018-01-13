@@ -1,0 +1,70 @@
+
+{% extends 'stickynote/base.html' %}
+
+{% block content %}
+<div class="content container">
+    <div class="row">
+        <div class="col-md-8 signup-wrapper">
+		    <h1>Add a friend</h1>
+		    <hr>
+		    <form method="POST" class="add-friends-form" >{% csrf_token %}
+          <div class="fieldWrapper">
+          <ul class="add-friends-text">
+            <li>Please fill in either the username or first name of your friend</li>
+            <li> Username </li>
+    </div>
+		    	<div class="fieldWrapper">
+			        {{ form.username.errors }}
+			        {{ form.username.label_tag }}*
+			        <br/>
+			        {{ form.username }}
+		        </div>
+
+		        <div class="fieldWrapper">
+			        <ul class="add-friends-text">
+			        	<li>First name </li>
+					</ul>
+				</div>
+
+		        <div class="fieldWrapper">
+			        {{ formNames.last_name.errors }}
+			        {{ formNames.last_name.label_tag }}
+			        <br/>
+			        {{ formNames.last_name }}
+		        </div>
+		        <button type="submit" class="save btn btn-default">Signup</button>
+		    </form>
+		</div>
+    </div>
+</div>
+    <div class="content container">
+        <div class="row">
+            <div class="col-md-8 signup-wrapper">
+    		    <h1>Pending friend requests</h1>
+    		    <hr>
+    		    <form method="POST" class="add-friends-form" >{% csrf_token %}
+              <div class="fieldWrapper">
+              <ul class="add-friends-text">
+                <li> een</li>
+                <li> twee</li>
+                <li> drie</li>
+        </div>
+    </div>
+</div>
+
+<div class="content container">
+    <div class="row">
+        <div class="col-md-8 signup-wrapper">
+        <h1>Incoming friend requests</h1>
+        <hr>
+        <form method="POST" class="add-friends-form" >{% csrf_token %}
+          <div class="fieldWrapper">
+          <ul class="add-friends-text">
+            <li>Incoming friend requests</li>
+            <li> een</li>
+            <li> twee</li>
+            <li> drie</li>
+    </div>
+</div>
+</div>
+{% endblock %}

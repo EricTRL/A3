@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'stickynote',
     'accounts',
+    'friends',
     'rest_framework',
 ]
 
