@@ -233,12 +233,12 @@ $(document).ready(function() {
 			UpdateEditorColours(data.r, data.g, data.b, data.a, data.filename);
 		});
 	});
-
+//ICON ICON ICON SHARED
 	//When the dropdown selection is changed, see if the group-sharing also changes
 	//Some elements may need to show/hide based on the group-shared value
 	$('#id_sticky_options_group select').change(function(e){
 		const iGroupID = $(this).val();
-		
+
 		get_group_by_id(iGroupID, function(data){
 			if (data.shared){
 				$('.show_if_group_shared').show();

@@ -300,7 +300,7 @@ def set_or_create_group_by_id(request, *args, **kwargs):
             pGroup.save()
         else:
             #Does not yet exist: so we create a new one
-            Group.objects.create(title=sTitle, created_date=timezone.now(), shared=bShared, author_id=request.user.id, cannotBeDeleted=False);
+            Group.objects.create(title=sTitle, created_date=timezone.now(), shared=bShared=='true', author_id=request.user.id, cannotBeDeleted=False);
         return HttpResponseRedirect('/'); #SUCCESSFUL
     return HttpResponseRedirect('') #FAILED
 
