@@ -11,7 +11,7 @@
     <div id="group_head_{{group.id}}" class="group-block">
       <div class="group-header">
         <p class="wrap-word-newline" style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}})">{{group.title|upper}}</p>
-
+        {% if author_id == request.user.id %}
         <input id="id_input_group_{{group.id}}" type="text" name='group-title' style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         box-shadow: 0 0 0px rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
@@ -53,13 +53,13 @@
                 <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
           </button>
         </div>
-
+        {% endif %}
       </div>
     </div>
 
     <!--Stickynotes grid -->
     <div class="stickyNotesGrid group-body">
-
+      {% if author_id == request.user.id %}
       <div class="sticky_div">
         <div class='clickable group' id="group_{{group.id}}">
           <img class='sticky_img sticky_add_img sticky_elem' src="{% get_static_prefix %}Images/{{group.majorityColour.colour.filename}}"/>
@@ -69,7 +69,7 @@
           </div>
         </div>
       </div>
-
+      {% endif %}
       {% for sticky in stickies %}
         <!--matching groups-->
         {% if sticky.group_id == group.id %}
@@ -87,30 +87,7 @@
     </div>
   {% endfor %}
 
-  <!--ADD GROUP-->
-  <!--
-  <div class="row">
-    <div class="col-lg-6">
-      <div class="input-group">
-        <span class="input-group-addon">
-          <input type="checkbox" aria-label="...">NOT Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
-        </span>
-        <input type="text" class="form-control" aria-label="..." placeholder="Group Name">
-      </div>
-    </div>
-  </div>
-
-  <div class="input-group">
-    <div class="input-group-btn">
-
-      <button type="button" class="btn btn-default">
-          NOT Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
-      </button>
-    </div>
-    <input type="text" class="form-control" aria-label="groupname" placeholder="Group Name">
-  </div>
--->
-
+{% if author_id == request.user.id %}
   <div class="input-group">
     <div class="input-group-btn">
       <!-- Button and dropdown menu -->
@@ -125,6 +102,7 @@
   <div id="id_add_group_button" class="btn-group" role="group" aria-label="addgroup">
     <button type="button" class="btn btn-default btn-lg">Add Group <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></button>
   </div>
+  {% endif %}
 
   <!--Stickynote creation/edit screen-->
   <div class="popup popup_elem hidden_elem" id="id_popup_add_sticky">

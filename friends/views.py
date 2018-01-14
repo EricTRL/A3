@@ -78,7 +78,7 @@ def view_friend(request, friend_id):
     print(groups)
     colours = Colour.objects.all().order_by('name');
     print(colours)
-    return render(request, 'stickynote/index.html', {'stickies': stickies, 'groups': groups, 'colours': colours, 'author_ids': friend_id})
+    return render(request, 'stickynote/index.html', {'stickies': stickies, 'groups': groups, 'colours': colours, 'author_id': friend_id})
 
 
 

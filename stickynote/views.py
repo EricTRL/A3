@@ -54,7 +54,7 @@ def page_load(request):
         print(groups)
         colours = Colour.objects.all().order_by('name');
         print(colours)
-    return render(request, 'stickynote/index.html', {'stickies': stickies, 'groups': groups, 'colours': colours, 'author_ids': request.user.id})
+    return render(request, 'stickynote/index.html', {'stickies': stickies, 'groups': groups, 'colours': colours, 'author_id': request.user.id})
 
 #Gets the data of a stickynote with the given ID.
 #Returns an error if no such stickynote exists
