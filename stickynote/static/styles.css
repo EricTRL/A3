@@ -502,6 +502,7 @@ span.show-login-name {
 /*=====================================================================================*/
 /*Friends page*/
 
+/*Searching/adding new friends*/
 #id_search_friends_result {
 		margin-top: 20px;
 
@@ -522,6 +523,10 @@ span.show-login-name {
 	#id_search_friends_result > ul > li .friend-status {
 		/*width: 33%;*/
 	}
+.add-friends-container {
+		margin-top: 15px;
+}
+
 
 /*=====================================================================================*/
 /*Misc*/

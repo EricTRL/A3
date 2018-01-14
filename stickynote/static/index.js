@@ -414,6 +414,9 @@ function openStickyEditor(iID, bAppendNewSticky){
 
 		//Set the group-Dropdown
 		$("#id_sticky_options_group select").val(iID);
+		//Trigger the change event so that the "Autoshare-warning" is updated as well
+		$("#id_sticky_options_group select").trigger("change");
+
 
 		//show the popup
 		bAddStickyPopupIsActive = true;
