@@ -104,6 +104,29 @@
   </div>
   {% endif %}
 
+
+  <!--The Viewer-->
+  <div class="popup popup_elem hidden_elem" id="id_popup_view_sticky">
+    <div class="sticky_edit popup_elem wrap-word-newline">
+    	<div class="header popup_elem">
+    		<h1 class="popup_elem popup_title">POPUP TITLE</h1>
+    	</div>
+    	<div class="body row">
+        <div class="col-xs-12">
+            <div id="id_popup_view_sticky_contents">
+              <!--Data added dynamically using JS-->
+            </div>
+            <div class="buttons">
+              <button type="button" id="id_open_sticky_editor" class="popup_submit_button">Edit <span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+              <button type="button" id="id_close_sticky_viewer" class="popup_submit_button">Back <span class="glyphicon glyphicon-eject" aria-hidden="true"></span></button>
+    				</div>
+        </div>
+  	  </div>
+    </div>
+    <!--Grey out the rest of the screen (to prevent button presses as well)-->
+    <div class="hide_screen"></div>
+  </div>
+
   <!--Stickynote creation/edit screen-->
   <div class="popup popup_elem hidden_elem" id="id_popup_add_sticky">
     <div class="sticky_edit popup_elem">
@@ -165,7 +188,7 @@
   </div>
   <!--Grey out the rest of the screen (to prevent button presses as well)-->
   <div class="hide_screen"></div>
-  </div>
+</div>
 {% endblock %}
 
 {% block JS %}

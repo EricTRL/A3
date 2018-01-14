@@ -129,7 +129,8 @@ def get_users_by_names(request):
 
         #Store it to an array to be able to send it back
         for user in validUsers:
-            tUsers.append([user.id, user.username, sStatus, user.first_name, user.last_name, user.email, user.last_login, user.date_joined, user.is_superuser, user.is_staff, user.is_active]);
+            sLastName = user.last_name if len(user.last_name) > 0 else "<i>(Last name not set)</i>";
+            tUsers.append([user.id, user.username, sStatus, user.first_name, sLastName, user.email, user.last_login, user.date_joined, user.is_superuser, user.is_staff, user.is_active]);
         print(tUsers)
     return JsonResponse({"tUsers": tUsers})
 

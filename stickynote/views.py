@@ -6,6 +6,7 @@ from django.utils import timezone #timezone-data
 
 from django.db.models import Count    #Count
 from django.shortcuts import render #rendering
+from django.db.models.functions import Lower #to transform to lowercase in a .filter
 
 from random import randint #random number generator
 from django.http import JsonResponse #for AJAX requessts
@@ -34,9 +35,9 @@ def page_load(request):
 
     if request.user.is_authenticated:
         print('!!!!!!!!!!!!!!!!NEW PAGE LOAD!!!!!!!!!!!!!!!!!!!')
-        stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
+        stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by(Lower('title'));
         print(stickies)
-        groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
+        groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', Lower('title'));
 
         #Get&Set the colour that most stickies in a group have.
         for group in groups:

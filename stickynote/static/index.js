@@ -124,7 +124,7 @@ $(document).ready(function() {
 		$('#id_option_c_c_group_' + iGroup + '').hide();
 
 		set_or_create_group_by_id(iGroup, sTitle, null, null, null);
-
+		location.reload();
 	});
 
 	//Cancelling rename
@@ -187,7 +187,8 @@ $(document).ready(function() {
 
 		print("Existing Sticky Clicked");
 		iLastSelectedSticky = iSticky;
-		openStickyEditor(iSticky,false);
+		openStickyViewer(iSticky);
+		//openStickyEditor(iSticky,false);
 	});
 
 	//what happens when the stickynote that's opened up in the editor is saved/cancelled:
@@ -211,7 +212,6 @@ $(document).ready(function() {
 					location.reload();
 				}, null)
 			}else{
-				//Do nothing TODO: remove NEW STICKY
 				bAddStickyPopupIsActive = false;
 				$('#id_popup_add_sticky').stop().fadeOut();
 			}
@@ -220,6 +220,23 @@ $(document).ready(function() {
 	$(".sticky_edit input[type=submit]").click(function() {
 		$("input[type=submit]", $(this).parents(".sticky_edit")).removeAttr("clicked");
 		$(this).attr("clicked", "true");
+	});
+
+	//////////////////////////////////////////////////////////////////////////////
+	//stickynote viewer:
+
+	//Closing a stickynote
+	$('#id_close_sticky_viewer').on('click', function(e){
+		bAddStickyPopupIsActive = false;
+		$('#id_popup_view_sticky').stop().fadeOut();
+	});
+
+	//opening the sticky editor:
+	$('#id_open_sticky_editor').on('click', function(e){
+		$('#id_popup_view_sticky').hide();
+		$('#id_popup_add_sticky').show();
+		bAddStickyPopupIsActive = true;
+		openStickyEditor(iLastSelectedSticky,false);
 	});
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -347,9 +364,10 @@ function calculateGridSize() {
 	//(The scrollbar listener causes the event to fire twice if a scrollbar is active)
 	if (iWidth != iPrevNavWidth){
 		iPrevNavWidth = iWidth;
-		let sColSize = $(".stickyNotesGrid").css("grid-template-columns");
 
-		sColSize = sColSize.slice(0,sColSize.search("px"));
+		//let sColSize = $(".stickyNotesGrid").css("grid-template-columns");
+		//sColSize = sColSize.slice(0,sColSize.search("px"));
+		let sColSize = iWidth > 440 ? 200 : 150; //size in px
 		const iColSize = parseInt(sColSize);
 		print("Width: " + iWidth + " | colSize: " + iColSize);
 
@@ -362,9 +380,6 @@ function calculateGridSize() {
 		$('.stickyNotesGrid').css("grid-column-gap",iGapSize + "px");
 		$('.stickyNotesGrid').css("grid-row-gap",iGapSize + "px");
 		$('.stickyNotesGrid').css("padding","0px " + iGapSize + "px");
-
-		//print($('.stickyNotesGrid').css("grid-column-gap"));
-		//print("ColGap: " + iGapSize + " | RowGap: " + iGapSize + " | Padding: " + iGapSize);
 
 		//print("New Number of Columns (min 1): "+iNumColumns);
 		$('.stickyNotesGrid').css("grid-template-columns","repeat( " + (iNumColumns > 0 ? iNumColumns : 1) + ","+ sColSize +"px)");
@@ -392,7 +407,40 @@ function setCaretPosition(ctrl, pos) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//Sticky Editor Stuff:
+//Sticky Editor/viewer Stuff:
+
+function openStickyViewer(iID){
+	//Scroll to the top of the screen
+	const body = $("html, body");
+	body.stop().animate({scrollTop:0}, 500, 'swing', function() {
+		 //upon finishing
+	});
+
+	//existing sticky that the user wants to view, so retrieve all the fields from the DB
+	get_sticky_by_id(iID, function(data){
+		//and update the editor colours:
+		get_colour_by_id(data.colour_id, function(data2){
+			//set the Title
+			$(".popup_title").text(data.title === "" ? "(UNNAMED STICKY)" : data.title);
+			$(".popup_title").css('font-style', data.title === "" ? 'italic' : "normal");
+
+
+			$("#id_popup_view_sticky_contents").html(quillGetHTML(JSON.parse(data.contents)))
+			//in case a sticky has no contents (not even a single space or enter, give the user a message)
+			if ($("#id_popup_view_sticky_contents").html() === "<p><br></p>"){
+				$("#id_popup_view_sticky_contents").html("<i>(This Sticky has no contents)</i>")
+			}
+			print($("#id_popup_view_sticky_contents").html())
+
+			//Update the Editor Colours
+			UpdateEditorColours(data2.r, data2.g, data2.b, data2.a, data2.filename);
+
+			//If that all has been done, we can finally actually open the viewer
+			bAddStickyPopupIsActive = true;
+			$('#id_popup_view_sticky').stop().fadeIn();
+		});
+	});
+}
 
 //COMMENT
 function openStickyEditor(iID, bAppendNewSticky){
@@ -402,6 +450,12 @@ function openStickyEditor(iID, bAppendNewSticky){
 
 	//hide specific fields for new stickies:
 	updateEditorOptions(bAppendNewSticky);
+
+	//Scroll to the top of the screen
+	const body = $("html, body");
+	body.stop().animate({scrollTop:0}, 500, 'swing', function() {
+		 //upon finishing
+	});
 
 	if (bAppendNewSticky){
 		//new Stickynote. iID = groupID
@@ -417,16 +471,9 @@ function openStickyEditor(iID, bAppendNewSticky){
 		//Trigger the change event so that the "Autoshare-warning" is updated as well
 		$("#id_sticky_options_group select").trigger("change");
 
-
 		//show the popup
 		bAddStickyPopupIsActive = true;
 		$('#id_popup_add_sticky').stop().fadeIn();
-		//window.scrollTo(0, 0);
-
-		const body = $("html, body");
-		body.stop().animate({scrollTop:0}, 500, 'swing', function() {
-		   //upon finishing
-		});
 
 		//TODO (maybe): Append a "new sticky" on the screen for fancy visuals
 	}else{
@@ -485,6 +532,7 @@ function UpdateEditorColours(iR, iG, iB, iA, sFileName){
 	$('.popup .sticky_edit .header').css("background-color",									"rgba(" + Math.round(iR*iHeaderColourModifier) + ", " + Math.round(iG*iHeaderColourModifier) + ", " + Math.round(iB*iHeaderColourModifier) + ", " + iA + ")");
 	$('.popup .sticky_edit .body').css("background-color",										"rgba(" + iR + ", " + iG + ", " + iB + ", " + iA + ")");
 	$('.popup .sticky_edit .body .buttons input').css("background-color",			"rgba(" + Math.round(iR*iButtonColourModifier) + ", " + Math.round(iG*iButtonColourModifier) + ", " + Math.round(iB*iButtonColourModifier) + ", " + iA + ")");
+	$('.popup .sticky_edit .body .buttons button').css("background-color",		"rgba(" + Math.round(iR*iButtonColourModifier) + ", " + Math.round(iG*iButtonColourModifier) + ", " + Math.round(iB*iButtonColourModifier) + ", " + iA + ")");
 	$('.popup .sticky_edit .body form .editor_input').css("background-color",	"rgba(" + Math.round(iR + (255-iR)*iEditorColourModifier) + ", " + Math.round(iG + (255-iG)*iEditorColourModifier) + ", " + Math.round(iB + (255-iB)*iEditorColourModifier) + ", " + iA + ")");
 	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("background-color",	"rgba(" + Math.round(iR + (255-iR)*iOptionElementColourModifier) + ", " + Math.round(iG + (255-iG)*iOptionElementColourModifier) + ", " + Math.round(iB + (255-iB)*iOptionElementColourModifier) + ", " + iA + ")");
 	$('.popup .sticky_edit .body #id_sticky_options .sticky_option_element').css("border-color",			"rgba(" + Math.round(iR*iOptionElementBorderColourModifier) + ", " + Math.round(iG*iOptionElementBorderColourModifier) + ", " + Math.round(iB*iOptionElementBorderColourModifier) + ", " + iA + ")");
@@ -578,8 +626,6 @@ function set_or_create_sticky_by_id(iStickyID, sTitle, sContents, iColour, iGrou
 						if (onFail != null){
 							onFail(jqXHR, status, errorThrown);
 						}
-
-						//print(jqXHR);
 				},
 	});
 }
@@ -640,8 +686,6 @@ function set_or_create_group_by_id(iGroupID, sTitle, bShared, onSuccess, onFail)
 						if (onFail != null){
 							onFail(jqXHR, status, errorThrown);
 						}
-
-						//print(jqXHR);
 				},
 	});
 }
@@ -704,19 +748,6 @@ function checkLoginPageLoadAJAX(){
 	});
 }
 
-
-
-////////////////////////////////////////////////////////////////////////////////
-//Event Listeners (fired by the AJAX requests)
-
-//Event Listener. Functions can be 'hooked' into it here:
-//Fires a Colour has been retrieved from the DB
-/*
-$(window).on('ColourDataRetrieved', function (e) {
-
-});*/
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //Getting valid CSRF-Tokens for AJAX Requests and setting them up
 
@@ -760,3 +791,11 @@ var quill = new Quill('.quill_editor', {
 	placeholder: "Insert Contents Here...",
 	theme: 'snow',
 });
+
+//Gets the HTML-elements of a Quill-delta
+//https://stackoverflow.com/questions/39519950/convert-quill-delta-to-html/39547833#39547833
+function quillGetHTML(inputDelta) {
+	var tempCont = document.createElement("div");
+	(new Quill(tempCont)).setContents(inputDelta);
+	return tempCont.getElementsByClassName("ql-editor")[0].innerHTML;
+}
