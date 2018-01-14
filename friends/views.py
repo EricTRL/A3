@@ -10,26 +10,39 @@ from django.shortcuts import render
 
 from django.http import JsonResponse #for AJAX requessts
 from django.http import HttpResponseRedirect #redirection for POST-requests
+from django.contrib.auth import authenticate, login, logout #authenticate, login, and logout users
+from django.contrib.auth.decorators import login_required # to require users to log in
 
 import json #for decoding JSON strings
 
 
 
 #Initial page load
+@login_required
 def friends_page(request):
-    stickies = [];
-    groups = [];
-    colours = [];
+    user= request.user.id
+    outgoing = FriendRequest.objects.filter(sender=user, status='pending')
+    incoming = FriendRequest.objects.filter(receiver=user, status='pending')
+    friends1 = Friend.objects.filter(user1=user)
+    friends2 = Friend.objects.filter(user2=user)
+    print(outgoing)
+    print(incoming)
+    return render(request, 'friends/friends.html', {'outgoings':outgoing, 'incomings': incoming, 'friends1s': friends1, 'friends2s': friends2})
 
-    if request.user.is_authenticated:
-        stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
-        print(stickies)
-        groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
-        print(groups)
-        colours = Colour.objects.all().order_by('name');
-        print(colours)
-    return render(request, 'friends/friends.html', {'stickies': stickies, 'groups': groups, 'colours': colours})
-
+#Does this even do anything?
+"""
+def addfriends(request):
+	if request.method == "POST":
+		form = FriendRequestForm(request.POST)
+		if form.is_valid():
+			user = form.save(commit=False)
+			user.first_name = form.cleaned_data['username']
+			user.last_name = form.cleaned_data['first_name']
+			return redirect('friends/friends.html')
+	else:
+		form = UserCreationForm()
+	return render(request, 'friends/friends.html', {'form': form, 'formNames': formNames})
+"""
 
 #Gets all users that have any of their data match with a given string
 def get_users_by_names(request):
