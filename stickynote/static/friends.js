@@ -25,6 +25,10 @@ $(document).ready(function() {
                   send_friend_request(user[0], null, null);
               });
           });
+          //No results
+          if (data.tUsers.length <= 0) {
+            $('#id_search_friends_result').append("<p>No Users match this search result :c</p>");
+          }
       });
   });
 });
