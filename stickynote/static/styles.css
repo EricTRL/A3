@@ -500,9 +500,27 @@ span.show-login-name {
 
 /*=====================================================================================*/
 /*Friends page*/
-#id_search_friends_result > * {
-	display: inline-block;
-}
+
+#id_search_friends_result {
+		margin-top: 20px;
+
+	}
+	#id_search_friends_result > ul > li:first-child {
+		border-bottom: 3px solid #ddd;
+		font-weight: 800;
+	}
+	#id_search_friends_result > ul > li td {
+		text-align: center;
+		word-wrap: break-word
+		border: 1px solid red;
+		font-size: 18px;
+	}
+	#id_search_friends_result > ul > li table {
+		table-layout: fixed;
+	}
+	#id_search_friends_result > ul > li .friend-status {
+		/*width: 33%;*/
+	}
 
 /*=====================================================================================*/
 /*Misc*/

@@ -16,18 +16,20 @@ $(document).ready(function() {
       get_users_by_names($('#search_friend_bar').val(),function(data){
           $('#id_search_friends_result').html('');
           print(data.tUsers);
-          data.tUsers.forEach(function(user) {
-              //append the element
-              $('#id_search_friends_result').append(getFriendHTMLEntry(user[0], user[1], user[2], user[3], user[4]))
-              //set on-click listener
-              $('#id_add_friend_' + user[0]).on('click',function(e){
-                  print('w/e' + user[0])
-                  send_friend_request(user[0], null, null);
-              });
-          });
           //No results
           if (data.tUsers.length <= 0) {
             $('#id_search_friends_result').append("<p>No Users match this search result :c</p>");
+          }else{
+            //append each result
+            data.tUsers.forEach(function(user) {
+                //append the element
+                $('#id_search_friends_result').append(getFriendHTMLEntry(user[0], user[1], user[2], user[3], user[4]))
+                //set on-click listener
+                $('#id_add_friend_' + user[0]).on('click',function(e){
+                    print('w/e' + user[0])
+                    send_friend_request(user[0], null, null);
+                });
+            });
           }
       });
   });
@@ -48,7 +50,7 @@ function getFriendHTMLEntry(iID, sUsername, sStatus, sFirstName, sLastName){
               'disabled>' +
               'Pending Friend Request <span class="glyphicon glyphicon-time" aria-hidden="true"></span>';
   }else if (sStatus == "ACCEPTED"){
-    sHTML +=
+    sHTML += //TODO: look at friends table instead of status
               'disabled>' +
               'Already Friends <span class="glyphicon glyphicon-heart" aria-hidden="true"></span>';
   }else{

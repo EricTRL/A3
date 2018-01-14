@@ -37,7 +37,6 @@
             </button>
           {% endif %}
         </div>
-      </div>
         <!--Confirm/Cancel title-->
         <div id="id_option_c_c_group_{{group.id}}" class="hidden_elem btn-group" role="group" aria-label="Save|Cancel">
           <button type="button"  style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
@@ -53,34 +52,34 @@
                 <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
           </button>
         </div>
+      </div>
+    </div>
 
-
-      <!--Stickynotes grid -->
-      <div class="stickyNotesGrid group-body">
-        <div class="sticky_div">
-          <div class='clickable group' id="group_{{group.id}}">
-            <img class='sticky_img sticky_add_img sticky_elem' src="{% get_static_prefix %}Images/{{group.majorityColour.colour.filename}}"/>
-            <img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
-            <div class="sticky_elem sticky_textdata">
-              <p class='add_sticky_text sticky_elem'>Add Sticky</p>
-            </div>
+    <!--Stickynotes grid -->
+    <div class="stickyNotesGrid group-body">
+      <div class="sticky_div">
+        <div class='clickable group' id="group_{{group.id}}">
+          <img class='sticky_img sticky_add_img sticky_elem' src="{% get_static_prefix %}Images/{{group.majorityColour.colour.filename}}"/>
+          <img class='sticky_plus_img sticky_elem' src="{% static 'Images/plusIcon_opaque.png' %}"/>
+          <div class="sticky_elem sticky_textdata">
+            <p class='add_sticky_text sticky_elem'>Add Sticky</p>
           </div>
         </div>
-        {% for sticky in stickies %}
-          <!--matching groups-->
-          {% if sticky.group_id == group.id %}
-            <div class="sticky_data sticky_div">
-              <div class="stickynote clickable" id=sticky_{{sticky.id}}>
-                  <img class="sticky_img sticky_elem" src="{% get_static_prefix %}Images/{{ sticky.colour.filename}}">
-                  <div class="sticky_elem sticky_textdata">
-                    <p class="add_sticky_text">{{sticky.title}}</p>
-                    <div class="add_sticky_contents hidden_elem">{{sticky.contents}}</div>
-                  </div>
-                </div>
-            </div>
-          {% endif %}
-        {% endfor %}
       </div>
+      {% for sticky in stickies %}
+        <!--matching groups-->
+        {% if sticky.group_id == group.id %}
+          <div class="sticky_data sticky_div">
+            <div class="stickynote clickable" id=sticky_{{sticky.id}}>
+                <img class="sticky_img sticky_elem" src="{% get_static_prefix %}Images/{{ sticky.colour.filename}}">
+                <div class="sticky_elem sticky_textdata">
+                  <p class="add_sticky_text">{{sticky.title}}</p>
+                  <div class="add_sticky_contents hidden_elem">{{sticky.contents}}</div>
+                </div>
+              </div>
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
   {% endfor %}
 

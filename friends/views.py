@@ -88,7 +88,7 @@ def get_users_by_names(request):
         for user in User.objects.filter(Q(username__contains=sSearchData) | Q(first_name__contains=sSearchData) | Q(last_name__contains=sSearchData)| Q(email__contains=sSearchData)).order_by('username'):
             #Exclude the requesting user from the search
             if iRequestUser != user.id:
-                #Get already pending friend request:
+                #Get already pending friend request: TODO: look in friends table
                 sStatus = FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).order_by('-created_date')[0].status if FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).exists() else "NONE";
                 tUsers.append([user.id, user.username, sStatus, user.first_name, user.last_name, user.email, user.last_login, user.date_joined, user.is_superuser, user.is_staff, user.is_active]);
         print(tUsers)
@@ -97,7 +97,7 @@ def get_users_by_names(request):
 
 ################################################################################
 ##Friend Requests
-
+#TODO: geen requests mogen sturen als er al n request de andere kant op staat -> auto-accept request van andere kant
 #Sends a friend request from user1 to user2 (if such one doesn't yet exist)
 def send_friend_request(request, *args, **kwargs):
     if request.user.is_authenticated:
@@ -130,7 +130,7 @@ def respond_friend_request(request, *args, **kwargs):
                 pRequest.status = sStatus;
                 pRequest.save();
 
-                #Only become friends if we actually accept and we cannot be friends yet
+                #Only become friends if we actually accept and we aren't friends yet
                 if sStatus == "ACCEPTED" and not Friend.objects.filter(Q(user1_id=iUserSender, user2_id=request.user.id) | Q(user1_id=request.user.id, user2_id=iUserSender)).exists():
                     Friend.objects.create(user1_id=iUserSender, user2_id=request.user.id, friended_date=timezone.now());
 
