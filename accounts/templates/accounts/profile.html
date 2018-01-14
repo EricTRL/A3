@@ -26,5 +26,20 @@
 		<a class="btn btn-primary" id='edit-profile-button' href="{% url 'accounts:edit_profile' %}">Edit Profile  <span class="glyphicon glyphicon-pencil"></span></a>
 		<a class="btn btn-danger" id='change-password-button' href="{% url 'accounts:change_password' %}">Change Password</a>
 	</div>
+	<div class='set-sorting-preference'>
+		<h2>Set sorting preference</h2>
+		<form method="POST" class="sorting-to-TITLE" action="{% url 'stickynote:set_sorting_pref_to_title' %}" >
+    		{% csrf_token %}
+    		<button type="submit" class="btn btn-info" aria-hidden='true'>Title</button>
+    	</form>
+    	<form method="POST" class="sorting-to-CREATED" action="{% url 'stickynote:set_sorting_pref_to_created' %}" >
+    		{% csrf_token %}
+    		<button type="submit" class="btn btn-info" aria-hidden='true'>Date Created</button>
+    	</form>
+    	<form method="POST" class="sorting-to-EDITED" action="{% url 'stickynote:set_sorting_pref_to_edited' %}" >
+    		{% csrf_token %}
+    		<button type="submit" class="btn btn-info" aria-hidden='true'>Last Edit</button>
+    	</form>
+    </div>
 </div>
 {% endblock %}
