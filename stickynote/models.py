@@ -2,6 +2,11 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+#to save user preference of sorting stickies
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 #Stickynote entry (yes, most of this is unused (or not displayed to the user), though it could be used in A3)
 class Stickynote(models.Model):
     #1-to-many relation with a Group (which has an author field), so it's not neccesary here
@@ -16,7 +21,7 @@ class Stickynote(models.Model):
     created_date = models.DateTimeField(
             default=timezone.now)
     last_edit_date = models.DateTimeField(
-            blank=True, null=True)
+            blank=True, null=True, default=timezone.now)
     colour = models.ForeignKey(
             'Colour',
             on_delete=models.CASCADE,
@@ -76,7 +81,7 @@ class Group(models.Model):
     created_date = models.DateTimeField( #Creation Date
             default=timezone.now)
     last_edit_date = models.DateTimeField( #Last date something was added/removed from this group
-            blank=True, null=True)
+            blank=True, null=True, default=timezone.now)
     shared = models.BooleanField()
     cannotBeDeleted = models.BooleanField(default=False)
 
@@ -90,3 +95,18 @@ class Group(models.Model):
 
     def __str__(self):
         return (self.title + " (" + self.author.username + ")")
+
+
+#to save user preference of sorting stickies
+class SortingPreference(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    sorting_pref = models.CharField(max_length=30, default="TITLE")
+
+@receiver(post_save, sender=User)
+def create_sorting_pref(sender, instance, created, **kwargs):
+    if created:
+        SortingPreference.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_sorting_pref(sender, instance, **kwargs):
+    instance.sortingpreference.save()

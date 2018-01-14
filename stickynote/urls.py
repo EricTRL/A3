@@ -8,6 +8,9 @@ app_name = "stickynote"
 
 urlpatterns = [
     path('', views.page_load, name='page_load'),
+    path('set_sorting_pref_to_title', views.set_sorting_pref_to_title, name='set_sorting_pref_to_title'),
+    path('set_sorting_pref_to_edited', views.set_sorting_pref_to_edited, name='set_sorting_pref_to_edited'),
+    path('set_sorting_pref_to_created', views.set_sorting_pref_to_created, name='set_sorting_pref_to_created'),
 
     #TODO: OLD (to be removed probably)
     #path('ajax/retrieve_sticky_colours/', views.retrieve_sticky_colours, name='retrieve_sticky_colours'),

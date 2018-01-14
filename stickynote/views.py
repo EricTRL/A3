@@ -1,11 +1,11 @@
 
 from django.contrib.auth.models import User #the user DB table
-from .models import Stickynote, Colour, Group #DB tables
+from .models import Stickynote, Colour, Group, SortingPreference #DB tables
 from friends.models import Friend, Collaborator, FriendRequest #DB tables
 from django.utils import timezone #timezone-data
 
 from django.db.models import Count    #Count
-from django.shortcuts import render #rendering
+from django.shortcuts import render, redirect #rendering
 
 from random import randint #random number generator
 from django.http import JsonResponse #for AJAX requessts
@@ -29,14 +29,33 @@ def page_load(request):
     stickies = [];
     groups = [];
     colours = [];
+    sp = SortingPreference.objects.get(user=request.user)
 
     iGroupHeaderColourModifier = 0.75;
 
     if request.user.is_authenticated:
         print('!!!!!!!!!!!!!!!!NEW PAGE LOAD!!!!!!!!!!!!!!!!!!!')
-        stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
-        print(stickies)
-        groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
+        print(sp.sorting_pref)
+        if sp.sorting_pref == "TITLE":
+            stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
+            print(stickies)
+            groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
+
+        elif sp.sorting_pref == "DATE_CREATED":
+            stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('created_date');
+            print(stickies)
+            groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', '-created_date');
+
+        elif sp.sorting_pref == "DATE_EDITED":
+            stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('-last_edit_date');
+            print(stickies)
+            groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', '-last_edit_date');
+
+        #TODO: remove the if and change the first elif to if. This will have the same functionality.
+        else:
+            stickies = Stickynote.objects.filter(group_id__author_id=request.user.id).order_by('title');
+            print(stickies)
+            groups = Group.objects.filter(author_id=request.user.id).order_by('-cannotBeDeleted', 'title');
 
         #Get&Set the colour that most stickies in a group have.
         for group in groups:
@@ -411,6 +430,32 @@ class UserDetails(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+################################################################################
+#Sorting Preference
+
+#Set sorting preference to TITLE
+def set_sorting_pref_to_title(request):
+    sp = SortingPreference.objects.get(user=request.user)
+    if request.method == "POST":
+        sp.sorting_pref = "TITLE"
+        sp.save()
+        return redirect('stickynote:page_load')
+
+#Set sorting preference to DATE_EDITED
+def set_sorting_pref_to_edited(request):
+    sp = SortingPreference.objects.get(user=request.user)
+    if request.method == "POST":
+        sp.sorting_pref = "DATE_EDITED"
+        sp.save()
+        return redirect('stickynote:page_load')
+
+#Set sorting preference to DATE_CREATED
+def set_sorting_pref_to_created(request):
+    sp = SortingPreference.objects.get(user=request.user)
+    if request.method == "POST":
+        sp.sorting_pref = "DATE_CREATED"
+        sp.save()
+        return redirect('stickynote:page_load')
 
 
 
