@@ -98,14 +98,38 @@ def get_users_by_names(request):
     if sSearchData:
         #Get the requesting user (if any)
         iRequestUser = request.user.id if request.user.is_authenticated else -1;
+        sSearchData = sSearchData + " ";
+        print("Total search term: " + sSearchData)
 
-        print(sSearchData)
-        for user in User.objects.filter(Q(username__contains=sSearchData) | Q(first_name__contains=sSearchData) | Q(last_name__contains=sSearchData)| Q(email__contains=sSearchData)).order_by('username'):
-            #Exclude the requesting user from the search
-            if iRequestUser != user.id:
-                #Get already pending friend request: TODO: look in friends table
-                sStatus = FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).order_by('-created_date')[0].status if FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).exists() else "NONE";
-                tUsers.append([user.id, user.username, sStatus, user.first_name, user.last_name, user.email, user.last_login, user.date_joined, user.is_superuser, user.is_staff, user.is_active]);
+        validUsers = User.objects.none();
+
+        iSearchTermStart = 0;
+        iSearchTermEnd = sSearchData.find(' ', iSearchTermStart);
+        sSearchTerm = sSearchData[iSearchTermStart:iSearchTermEnd];
+        #Loop through every search term. I.e. every word separated by a whitespace. Whitespaces are treated as an OR
+        while iSearchTermEnd != -1:
+            print("Now searching for (" + sSearchTerm + ")");
+
+            for user in User.objects.filter(Q(username__contains=sSearchTerm) | Q(first_name__contains=sSearchTerm) | Q(last_name__contains=sSearchTerm)| Q(email__contains=sSearchTerm)).order_by('username'):
+                #Exclude the requesting user from the search
+                if iRequestUser != user.id:
+                    #Get already pending friend request
+                    sStatus = FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).order_by('-created_date')[0].status if FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).exists() else "NONE";
+                    #check if the users are friends. If not, then it doesn't even matter that the last request was ACCEPTED
+                    sStatus = "NONE" if (sStatus=="ACCEPTED" and not UsersAreFriends(user.id, iRequestUser)) else sStatus;
+                    validUsers = validUsers|User.objects.filter(id=user.id)
+            iSearchTermStart = iSearchTermEnd + 1;
+            iSearchTermEnd = sSearchData.find(' ', iSearchTermStart);
+            sSearchTerm = sSearchData[iSearchTermStart:iSearchTermEnd];
+            while sSearchTerm == "" and iSearchTermEnd != -1:
+                iSearchTermStart = iSearchTermEnd + 1;
+                iSearchTermEnd = sSearchData.find(' ', iSearchTermStart);
+                sSearchTerm = sSearchData[iSearchTermStart:iSearchTermEnd];
+        validUsers.distinct();
+
+        #Store it to an array to be able to send it back
+        for user in validUsers:
+            tUsers.append([user.id, user.username, sStatus, user.first_name, user.last_name, user.email, user.last_login, user.date_joined, user.is_superuser, user.is_staff, user.is_active]);
         print(tUsers)
     return JsonResponse({"tUsers": tUsers})
 
@@ -146,12 +170,15 @@ def respond_friend_request(request, *args, **kwargs):
                 pRequest.save();
 
                 #Only become friends if we actually accept and we aren't friends yet
-                if sStatus == "ACCEPTED" and not Friend.objects.filter(Q(user1_id=iUserSender, user2_id=request.user.id) | Q(user1_id=request.user.id, user2_id=iUserSender)).exists():
+                if sStatus == "ACCEPTED" and not UsersAreFriends(iUserSender,request.user.id):
                     Friend.objects.create(user1_id=iUserSender, user2_id=request.user.id, friended_date=timezone.now());
 
                 return HttpResponseRedirect('/') #redirect to nothing (but we still need to return something in order to fire the success() function)
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)
 
+#Returns true if two given users are friends. returns false otherwise
+def UsersAreFriends(user1, user2):
+    return Friend.objects.filter(Q(user1_id=user1, user2_id=user2) | Q(user1_id=user2, user2_id=user1)).exists()
 
 #get a random sticky colour from those in the DB
 def GetRandomColour():
