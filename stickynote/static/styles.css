@@ -254,8 +254,9 @@ nav div li {
 			display: inline-block;
 			vertical-align: middle;
 			}
-		.group-block .group-header input {
+		.group-block .group-header input[type="text"] {
 			max-width: 95%;
+			min-width: 250px;
 		}
 
 /*=====================================================================================*/

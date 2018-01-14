@@ -294,7 +294,7 @@ def set_or_create_group_by_id(request, *args, **kwargs):
             #Sanity check. No wiping other user's groups (this should never happen)
             if Group.objects.filter(id=iID, author_id=request.user.id).count() <= 0: return HttpResponseRedirect('') #FAILED
 
-            pGroup.title = sTitle if sTitle else pGroup.title; #only update if we can update
+            pGroup.title = sTitle if sTitle != None else pGroup.title; #only update if we can update
             pGroup.shared = bShared == 'true' if bShared else pGroup.shared;
             pGroup.last_edit_date = timezone.now();
 

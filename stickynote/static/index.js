@@ -97,7 +97,10 @@ $(document).ready(function() {
 			//print($('#group_head_' + iGroup + ' input[name=group-title]').attr('name'))
 			$('#group_head_' + iGroup + ' .group-header p').hide();
 
-			$('#group_head_' + iGroup + ' input[name=group-title]').css('width',$('#group_head_' + iGroup + ' .group-header p').css('width'));
+			print($('#group_head_' + iGroup + ' .group-header p').css('width').slice(0,-2))
+			const iWidth = parseInt($('#group_head_' + iGroup + ' .group-header p').css('width').slice(0,-2)) + 15;
+
+			$('#group_head_' + iGroup + ' input[name=group-title]').css('width', iWidth.toString());
 			$('#group_head_' + iGroup + ' input[name=group-title]').show();
 
 			$('#id_option_r_d_group_' + iGroup + '').hide();
@@ -609,6 +612,8 @@ function delete_sticky_by_id(iStickyID, onSuccess, onFail) {
 //If such group does not exist, it is created (not neccesarily with the given ID)
 //Can pass null to bShared and/or sTitle to not update the value(s).
 function set_or_create_group_by_id(iGroupID, sTitle, bShared, onSuccess, onFail){
+	print(""==null);
+	print(""===null);
 	//set a valid CSRF token
 	setupSafeAjax();
 	//actually uplaod the stickies
@@ -617,8 +622,8 @@ function set_or_create_group_by_id(iGroupID, sTitle, bShared, onSuccess, onFail)
 				url:"ajax/set_or_create_group_by_id/",
 				data: {
 							'id': 			iGroupID,
-							'title': 		sTitle == null ? undefined : sTitle, //if null was passed, we send undefined instead (as null gets converted to an empty string by python)
-							'shared':		bShared == null ? undefined : bShared,
+							'title': 		sTitle === null ? undefined : sTitle, //if null was passed, we send undefined instead (as null gets converted to an empty string by python)
+							'shared':		bShared === null ? undefined : bShared,
 							},
 				success: function(){
 						print('SUCCESSFUL GROUP UPLOAD');

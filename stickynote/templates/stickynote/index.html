@@ -11,7 +11,8 @@
     <div id="group_head_{{group.id}}" class="group-block">
       <div class="group-header">
         <p class="wrap-word-newline" style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}})">{{group.title|upper}}</p>
-        <input id="id_input_group_{{group.id}}" name='group-title' style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
+
+        <input id="id_input_group_{{group.id}}" type="text" name='group-title' style="color:rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         box-shadow: 0 0 0px rgba({{group.majorityColour.r}},{{group.majorityColour.b}},{{group.majorityColour.g}},{{group.majorityColour.a}});
                                         background-color:rgba({{group.majorityColour.colour.r}},{{group.majorityColour.colour.g}},{{group.majorityColour.colour.b}},{{group.majorityColour.colour.a}});"
                   class="hidden_elem caps_input" value="{{group.title|upper}}" placeholder=""/>
@@ -52,11 +53,13 @@
                 <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
           </button>
         </div>
+
       </div>
     </div>
 
     <!--Stickynotes grid -->
     <div class="stickyNotesGrid group-body">
+
       <div class="sticky_div">
         <div class='clickable group' id="group_{{group.id}}">
           <img class='sticky_img sticky_add_img sticky_elem' src="{% get_static_prefix %}Images/{{group.majorityColour.colour.filename}}"/>
@@ -66,6 +69,7 @@
           </div>
         </div>
       </div>
+
       {% for sticky in stickies %}
         <!--matching groups-->
         {% if sticky.group_id == group.id %}

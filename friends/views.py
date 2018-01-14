@@ -5,6 +5,7 @@ from friends.models import Friend, Collaborator, FriendRequest
 from django.utils import timezone #timezone-data
 
 from django.db.models import Q #Allow OR-lookups
+from random import randint #random number generator
 
 from django.shortcuts import render
 
@@ -54,11 +55,16 @@ def view_friend(request, friend_id):
     #friend = Friend.objects.get(id=friend_id)
     stickies = Stickynote.objects.filter(Q(group_id__author_id=friend_id), Q(shared=True) | Q(group_id__shared=True)).order_by('title');
     print(stickies)
-    groups = Group.objects.filter(author_id=friend_id).order_by('-cannotBeDeleted', 'title');
+    groups = Group.objects.filter(author_id=friend_id);
+    #Exclude empty groups
+    for group in groups:
+        if not stickies.filter(group_id=group.id).exists():
+            groups = groups.exclude(id=group.id);
+    groups.order_by('-cannotBeDeleted', 'title');
 
     #Get&Set the colour that most stickies in a group have.
     for group in groups:
-        groupStickies = Stickynote.objects.filter(group_id=group.id);
+        groupStickies = stickies.filter(group_id=group.id);
         majorityColour = groupStickies.values("colour_id").annotate(Count("id")).order_by('-id__count');
         majorityColour = majorityColour[0] if majorityColour.count() > 0 else {'colour_id': GetRandomColour().id,'id__count': 0};
 
@@ -138,7 +144,11 @@ def respond_friend_request(request, *args, **kwargs):
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)
 
 
-
+#get a random sticky colour from those in the DB
+def GetRandomColour():
+    iRandomIndex = randint(0, Colour.objects.count() - 1);
+    pRandomColour = Colour.objects.all()[iRandomIndex];
+    return pRandomColour;
 
 
 
