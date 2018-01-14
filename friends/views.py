@@ -10,6 +10,7 @@ from random import randint #random number generator
 from django.http import JsonResponse #for AJAX requessts
 from django.http import HttpResponseRedirect #redirection for POST-requests
 from django.contrib.auth import authenticate, login, logout #authenticate, login, and logout users
+from django.contrib.auth.decorators import login_required # to require users to log in
 
 import json #for decoding JSON strings
 
@@ -23,6 +24,7 @@ from rest_framework import permissions #User permissions (I.e. extra admin privi
 
 
 #Initial page load
+"""
 def friends_page(request):
     stickies = [];
     groups = [];
@@ -36,7 +38,7 @@ def friends_page(request):
         colours = Colour.objects.all().order_by('name');
         print(colours)
     return render(request, 'friends/friends.html', {'stickies': stickies, 'groups': groups, 'colours': colours})
-
+"""
 def addfriends(request):
 	if request.method == "POST":
 		form = FriendRequestForm(request.POST)
@@ -48,3 +50,14 @@ def addfriends(request):
 	else:
 		form = UserCreationForm()
 	return render(request, 'friends/friends.html', {'form': form, 'formNames': formNames})
+
+@login_required
+def friends_page(request):
+    user= request.user.id
+    outgoing = FriendRequest.objects.filter(sender=user, status='pending')
+    incoming = FriendRequest.objects.filter(receiver=user, status='pending')
+    friends1 = Friend.objects.filter(user1=user)
+    friends2 = Friend.objects.filter(user2=user)
+    print(outgoing)
+    print(incoming)
+    return render(request, 'friends/friends.html', {'outgoings':outgoing, 'incomings': incoming, 'friends1s': friends1, 'friends2s': friends2})
