@@ -5,18 +5,39 @@
 
 {% block content %}
 <!--Eric Test (used for debugging)-->
-<br/>
-<div class="input-group">
-    <input type="text" id="search_friend_bar" class="form-control" placeholder="Search for Friends...">
-    <span class="input-group-btn">
-      <button id="id_search_friends_confirm" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-    </span>
+
+<div class='signup-wrapper container'>
+  <h1>Add Friends</h1>
+  <hr>
+  <div class="input-group">
+      <input type="text" id="search_friend_bar" class="form-control" placeholder="Search for Friends...">
+      <span class="input-group-btn">
+        <button id="id_search_friends_confirm" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+      </span>
+    </div>
+
+  <div id="id_search_friends_result">
+    <!--Entries added dynamically based on search result-->
+
+    <ul class="list-group">
+      <li class="list-group-item">
+        <p>USERNAME</p>
+        <p>FIRSTNAME</p>
+        <p>LASTNAME</p>
+        <!--Possibly other fields from the DB. Can easily be added-->
+        <div class="btn-group" role="group" aria-label="SendRequest">
+          <button id="id_add_friend_' + iID + '" type="button" disabled>
+            Pending Friend Request <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+          </button>
+        </div>
+      </li>
+      <li class="list-group-item">user2</li>
+    </ul>
   </div>
 </div>
 
-<div id="id_search_friends_result">
-  <!--Entries added dynamically based on search result-->
-</div>
+
+
 
 
 
