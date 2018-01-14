@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required # to require users to 
 
 import json #for decoding JSON strings
 
-
+from django.db.models import Count #Count
 
 #Initial page load
 @login_required
@@ -43,6 +43,38 @@ def addfriends(request):
 		form = UserCreationForm()
 	return render(request, 'friends/friends.html', {'form': form, 'formNames': formNames})
 """
+
+@login_required
+def view_friend(request, friend_id):
+    stickies = [];
+    groups = [];
+    colours = [];
+
+    iGroupHeaderColourModifier = 0.75;
+    #friend = Friend.objects.get(id=friend_id)
+    stickies = Stickynote.objects.filter(Q(group_id__author_id=friend_id), Q(shared=True) | Q(group_id__shared=True)).order_by('title');
+    print(stickies)
+    groups = Group.objects.filter(author_id=friend_id).order_by('-cannotBeDeleted', 'title');
+
+    #Get&Set the colour that most stickies in a group have.
+    for group in groups:
+        groupStickies = Stickynote.objects.filter(group_id=group.id);
+        majorityColour = groupStickies.values("colour_id").annotate(Count("id")).order_by('-id__count');
+        majorityColour = majorityColour[0] if majorityColour.count() > 0 else {'colour_id': GetRandomColour().id,'id__count': 0};
+
+        #majorityColour = Colour.objects.get(id=majorityColour.colour_id);
+        majorityColour['r'] = round(Colour.objects.get(id=majorityColour['colour_id']).r*iGroupHeaderColourModifier);
+        majorityColour['g'] = round(Colour.objects.get(id=majorityColour['colour_id']).b*iGroupHeaderColourModifier);
+        majorityColour['b'] = round(Colour.objects.get(id=majorityColour['colour_id']).g*iGroupHeaderColourModifier);
+        majorityColour['a'] = Colour.objects.get(id=majorityColour['colour_id']).a;
+        majorityColour['colour'] = Colour.objects.get(id=majorityColour['colour_id']);
+        group.majorityColour = majorityColour;
+    print(groups)
+    colours = Colour.objects.all().order_by('name');
+    print(colours)
+    return render(request, 'stickynote/index.html', {'stickies': stickies, 'groups': groups, 'colours': colours, 'author_ids': friend_id})
+
+
 
 #Gets all users that have any of their data match with a given string
 def get_users_by_names(request):

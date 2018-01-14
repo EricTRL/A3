@@ -7,6 +7,7 @@ app_name = "friends"
 urlpatterns = [
 
     url(r'^friends/$', views.friends_page, name='friends_page'),
+    url(r'^friends/(?P<friend_id>\d+)$', views.view_friend, name='view_friend'),
 
     path('ajax/get_users_by_names/', views.get_users_by_names, name='get_users_by_names'),
     path('ajax/send_friend_request/', views.send_friend_request, name='send_friend_request'),

@@ -130,6 +130,16 @@ function respond_friend_request(iSender, sResponse,onSuccess,onFail) {
 	});
 }
 
+//Respond to a friend request
+	$('.button_friend_request_response').on('click',function(e){
+		const iSender = $(this).attr("value");
+		const sResponse = $(this).attr("name");
+		print(iSender);
+		print(sResponse);
+		respond_friend_request(iSender, sResponse, null, null);
+	});
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //Getting valid CSRF-Tokens for AJAX Requests and setting them up
 
@@ -158,15 +168,6 @@ function getCookie(c_name)
 		return "";
  }
 
-//Confirming rename
-	$('.button_friend_request_response').on('click',function(e){
-		const iSender = $(this).attr("value");
-		const sResponse = $(this).attr("name");
-		print(iSender);
-		print(sResponse);
-		respond_friend_request(iSender, sResponse, null, null);
-
-	});
 
 ////////////////////////////////////////////////////////////////////////////////
 //Misc:

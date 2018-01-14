@@ -53,10 +53,16 @@
 		    <hr>
             <ul class="friends-listed">
                 {% for friends1 in friends1s %}
-                <li>{{ friends1.user2 }}</li>
+                <li>
+                    {{ friends1.user2 }}
+                    <a class="btn btn-default" id='view-friend-button' href="{% url 'friends:view_friend' friend_id=friends1.user2.id %}">Click me</a>
+                </li>
                 {% endfor %}
                 {% for friends2 in friends2s %}
-                <li>{{ friends2.user1 }}</li>
+                <li>
+                    {{ friends2.user1 }}
+                    <a class="btn btn-default" id='view-friend-button' href="{% url 'friends:view_friend' friend_id=friends2.user1.id %}">Click me</a>
+                </li>
                 {% endfor %}
             </ul>
 		</div>
