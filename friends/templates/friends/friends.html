@@ -21,17 +21,35 @@
 
     <ul class="list-group">
       <li class="list-group-item">
-        <p>USERNAME</p>
-        <p>FIRSTNAME</p>
-        <p>LASTNAME</p>
-        <!--Possibly other fields from the DB. Can easily be added-->
-        <div class="btn-group" role="group" aria-label="SendRequest">
-          <button id="id_add_friend_' + iID + '" type="button" disabled>
-            Pending Friend Request <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-          </button>
-        </div>
+        <table style="width:100%">
+          <tr>
+            <td>Username</td>
+            <td>First Name</td>
+            <td>Last Name</td>
+            <!--Possibly other fields from the DB. Can easily be added-->
+            <td>Friend Status</td>
+          </tr>
+        </table>
+      </li>
+      <li class="list-group-item">
+        <table style="width:100%" class="wrap-word-newline">
+          <tr>
+            <td>USERNAME</td>
+            <td>FIRSTNAME</td>
+            <td>LASTNAME</td>
+            <!--Possibly other fields from the DB. Can easily be added-->
+            <td class="friend-status">
+              <div class="btn-group" role="group" aria-label="SendRequest">
+                <button id="id_add_friend_' + iID + '" type="button" disabled>
+                  Pending Friend Request <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
       </li>
       <li class="list-group-item">user2</li>
+      <li class="list-group-item">user3</li>
     </ul>
   </div>
 </div>
