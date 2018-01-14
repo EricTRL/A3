@@ -21,8 +21,8 @@ import json #for decoding JSON strings
 @login_required
 def friends_page(request):
     user= request.user.id
-    outgoing = FriendRequest.objects.filter(sender=user, status='pending')
-    incoming = FriendRequest.objects.filter(receiver=user, status='pending')
+    outgoing = FriendRequest.objects.filter(sender=user, status='PENDING')
+    incoming = FriendRequest.objects.filter(receiver=user, status='PENDING')
     friends1 = Friend.objects.filter(user1=user)
     friends2 = Friend.objects.filter(user2=user)
     print(outgoing)
@@ -87,6 +87,8 @@ def respond_friend_request(request, *args, **kwargs):
     if request.user.is_authenticated:
         iUserSender = request.POST.get('sender', -1);
         sStatus = request.POST.get('response', None)
+        print(iUserSender);
+        print(sStatus);
 
         #Users must exist and cannot send to yourself
         if iUserSender and sStatus and (sStatus in tValidStatuses) and User.objects.filter(id=iUserSender).exists():

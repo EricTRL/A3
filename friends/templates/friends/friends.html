@@ -104,7 +104,10 @@
             <hr>
             <ul class="incoming-friend-requests">
                 {% for incoming in incomings %}
-                <li>{{ incoming.sender }} has sent you a friend request</li>
+                <li>{{ incoming.sender }} has sent you a friend request
+                    <button class='button_friend_request_response btn btn-success' name="ACCEPTED" value='{{ incoming.sender.id }}' type="button">Yes</button>
+                    <button class='button_friend_request_response btn btn-danger' name="DENIED" value='{{ incoming.sender.id }}' type="button">Nah</button>
+                </li>
                 {% empty %}
                 <li>There are no pending friend requests</li>
                 {% endfor %}

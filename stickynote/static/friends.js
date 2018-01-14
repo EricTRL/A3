@@ -160,6 +160,16 @@ function getCookie(c_name)
 		return "";
  }
 
+//Confirming rename
+	$('.button_friend_request_response').on('click',function(e){
+		const iSender = $(this).attr("value");
+		const sResponse = $(this).attr("name");
+		print(iSender);
+		print(sResponse);
+		respond_friend_request(iSender, sResponse, null, null);
+
+	});
+
 ////////////////////////////////////////////////////////////////////////////////
 //Misc:
 
