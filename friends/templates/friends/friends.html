@@ -29,7 +29,7 @@
 <br><br><br><br>
 <!--End of Test-->
 
-<div class="content container">
+<div class="content container container-padding-bottom">
     <div class="row">
         <div class="signup-wrapper">
 		    <h1>Current Friends:</h1>
@@ -37,14 +37,34 @@
             <ul class="friends-listed">
                 {% for friends1 in friends1s %}
                 <li>
-                    {{ friends1.user2 }}
-                    <a class="btn btn-default" id='view-friend-button' href="{% url 'friends:view_friend' friend_id=friends1.user2.id %}">Click me</a>
+                    <div class='friends-listed-name'>
+                        {{ friends1.user2 }}
+                    </div>
+                    <div class='friends-listed-stickies'>
+                        <a class="btn btn-default" id='view-friend-button' href="{% url 'friends:view_friend' friend_id=friends1.user2.id %}">Shared Stickies</a>
+                    </div>
+                    <div class='friends-listed-remove'>
+                        <form method="POST" class="remove-friend-button-form" action="{% url 'friends:remove_friend' friend_pk=friends1.pk %}" >
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove {{ friends1.user2 }} from your friend list?')" aria-hidden='true'>&times;</button>
+                        </form>
+                    </div>
                 </li>
                 {% endfor %}
                 {% for friends2 in friends2s %}
                 <li>
-                    {{ friends2.user1 }}
-                    <a class="btn btn-default" id='view-friend-button' href="{% url 'friends:view_friend' friend_id=friends2.user1.id %}">Click me</a>
+                    <div class='friends-listed-name'>
+                        {{ friends2.user1}}
+                    </div>
+                    <div class='friends-listed-stickies'>
+                        <a class="btn btn-default" id='view-friend-button' href="{% url 'friends:view_friend' friend_id=friends2.user1.id %}">Shared Stickies</a>
+                    </div>
+                    <div class='friends-listed-remove'>
+                        <form method="POST" class="remove-friend-button-form" action="{% url 'friends:remove_friend' friend_pk=friends2.pk %}" >
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove {{ friends2.user1 }} from your friend list?')" aria-hidden='true'>&times;</button>
+                        </form>
+                    </div>
                 </li>
                 {% endfor %}
             </ul>
@@ -52,23 +72,7 @@
     </div>
 </div>
 
-<div class="content container">
-    <div class="row">
-        <div class="signup-wrapper">
-    		<h1>Pending friend requests</h1>
-            <hr>
-            <ul class="outgoing-friend-requests">
-        		{% for outgoing in outgoings %}
-                <li>{{ outgoing.receiver }} has been sent a friend request</li>
-                {% empty %}
-                <li>There are no pending friend requests</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div class="content container">
+<div class="content container container-padding-bottom">
     <div class="row">
         <div class="signup-wrapper">
             <h1>Incoming friend requests</h1>
@@ -80,12 +84,29 @@
                     <button class='button_friend_request_response btn btn-danger' name="DENIED" value='{{ incoming.sender.id }}' type="button">Nah</button>
                 </li>
                 {% empty %}
-                <li>There are no pending friend requests</li>
+                <li><i>There are no pending friend requests</i></li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 </div>
+
+<div class="content container">
+    <div class="row">
+        <div class="signup-wrapper">
+    		<h1>Outgoing friend requests</h1>
+            <hr>
+            <ul class="outgoing-friend-requests">
+        		{% for outgoing in outgoings %}
+                <li>{{ outgoing.receiver }} has been sent a friend request</li>
+                {% empty %}
+                <li><i>There are no pending friend requests</i></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 

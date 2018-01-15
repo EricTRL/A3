@@ -629,6 +629,32 @@ span.show-login-name {
 	margin-top: 0px !important;
 }
 
+.friends-listed-name {
+	width: 40%;
+	max-width: 40vh;
+	float: left;
+}
+
+.friends-listed-stickies {
+	width: 45%;
+	/*max-width: 45vh;*/
+	float: left;
+}
+
+.friends-listed-remove {
+	width: 10%;
+	max-width: 10vh;
+	float: left;
+}
+
+.friends-listed > li {
+	padding-bottom: 5px;
+}
+
+.container-padding-bottom {
+	padding-bottom: 10px;
+}
+
 /*=====================================================================================*/
 /*Debugging:*/
 

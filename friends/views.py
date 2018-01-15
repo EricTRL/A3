@@ -9,7 +9,7 @@ from stickynote.utility_functions import UsersAreFriends, CanEditStickynote, Can
 from django.db.models import Q #Allow OR-lookups
 from random import randint #random number generator
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from django.http import JsonResponse #for AJAX requessts
 from django.http import HttpResponseRedirect #redirection for POST-requests
@@ -133,7 +133,9 @@ def send_friend_request(request, *args, **kwargs):
         #Users must exist and cannot send to yourself
         if iUserReceive and iUserReceive != request.user.id and User.objects.filter(id=iUserReceive).exists():
             #cannot send another request if one is still PENDING
-            if not FriendRequest.objects.filter(Q(status="PENDING"), (Q(sender=request.user.id) | Q(receiver=request.user.id))).exists():
+            checked_friend_requests_out = FriendRequest.objects.filter(Q(status="PENDING"), Q(sender=request.user.id), Q(receiver=iUserReceive))
+            checked_friend_requests_in = FriendRequest.objects.filter(Q(status="PENDING"), Q(sender=iUserReceive), Q(receiver=request.user.id))
+            if not checked_friend_requests_in.exists() and not checked_friend_requests_out.exists():
                 FriendRequest.objects.create(sender_id=request.user.id, receiver_id=iUserReceive, status='PENDING', created_date=timezone.now());
                 return HttpResponseRedirect('/') #redirect to nothing (but we still need to return something in order to fire the success() function)
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)
@@ -165,7 +167,12 @@ def respond_friend_request(request, *args, **kwargs):
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)
 
 
-
+#Remove a friend
+def remove_friend(request, friend_pk):
+    friendship = Friend.objects.get(pk=friend_pk)
+    if request.method == "POST":
+        friendship.delete()
+        return redirect('friends:friends_page')
 
 
 
