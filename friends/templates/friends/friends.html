@@ -29,7 +29,7 @@
 <br><br><br><br>
 <!--End of Test-->
 
-<div class="content container">
+<div class="content container container-padding-bottom">
     <div class="row">
         <div class="signup-wrapper">
 		    <h1>Current Friends:</h1>
@@ -72,23 +72,7 @@
     </div>
 </div>
 
-<div class="content container">
-    <div class="row">
-        <div class="signup-wrapper">
-    		<h1>Outgoing friend requests</h1>
-            <hr>
-            <ul class="outgoing-friend-requests">
-        		{% for outgoing in outgoings %}
-                <li>{{ outgoing.receiver }} has been sent a friend request</li>
-                {% empty %}
-                <li><i>There are no pending friend requests</i></li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div class="content container">
+<div class="content container container-padding-bottom">
     <div class="row">
         <div class="signup-wrapper">
             <h1>Incoming friend requests</h1>
@@ -106,6 +90,23 @@
         </div>
     </div>
 </div>
+
+<div class="content container">
+    <div class="row">
+        <div class="signup-wrapper">
+    		<h1>Outgoing friend requests</h1>
+            <hr>
+            <ul class="outgoing-friend-requests">
+        		{% for outgoing in outgoings %}
+                <li>{{ outgoing.receiver }} has been sent a friend request</li>
+                {% empty %}
+                <li><i>There are no pending friend requests</i></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 

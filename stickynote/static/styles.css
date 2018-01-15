@@ -651,6 +651,10 @@ span.show-login-name {
 	padding-bottom: 5px;
 }
 
+.container-padding-bottom {
+	padding-bottom: 10px;
+}
+
 /*=====================================================================================*/
 /*Debugging:*/
 
