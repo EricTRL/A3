@@ -7,7 +7,7 @@ from django.utils import timezone #timezone-data
 from django.db.models import Q #Allow OR-lookups
 from random import randint #random number generator
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from django.http import JsonResponse #for AJAX requessts
 from django.http import HttpResponseRedirect #redirection for POST-requests
@@ -187,7 +187,12 @@ def GetRandomColour():
     pRandomColour = Colour.objects.all()[iRandomIndex];
     return pRandomColour;
 
-
+#Remove a friend
+def remove_friend(request, friend_pk):
+    friendship = Friend.objects.get(pk=friend_pk)
+    if request.method == "POST":
+        friendship.delete()
+        return redirect('friends:friends_page')
 
 
 
