@@ -4,6 +4,8 @@ from stickynote.models import Stickynote, Colour, Group #DB tables
 from friends.models import Friend, Collaborator, FriendRequest
 from django.utils import timezone #timezone-data
 
+from stickynote.utility_functions import UsersAreFriends, CanEditStickynote, CanOpenStickynote, GetRandomColour #utility-functions
+
 from django.db.models import Q #Allow OR-lookups
 from random import randint #random number generator
 
@@ -29,21 +31,6 @@ def friends_page(request):
     print(outgoing)
     print(incoming)
     return render(request, 'friends/friends.html', {'outgoings':outgoing, 'incomings': incoming, 'friends1s': friends1, 'friends2s': friends2})
-
-#Does this even do anything?
-"""
-def addfriends(request):
-	if request.method == "POST":
-		form = FriendRequestForm(request.POST)
-		if form.is_valid():
-			user = form.save(commit=False)
-			user.first_name = form.cleaned_data['username']
-			user.last_name = form.cleaned_data['first_name']
-			return redirect('friends/friends.html')
-	else:
-		form = UserCreationForm()
-	return render(request, 'friends/friends.html', {'form': form, 'formNames': formNames})
-"""
 
 @login_required
 def view_friend(request, friend_id):
@@ -177,15 +164,6 @@ def respond_friend_request(request, *args, **kwargs):
                 return HttpResponseRedirect('/') #redirect to nothing (but we still need to return something in order to fire the success() function)
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)
 
-#Returns true if two given users are friends. returns false otherwise
-def UsersAreFriends(user1, user2):
-    return Friend.objects.filter(Q(user1_id=user1, user2_id=user2) | Q(user1_id=user2, user2_id=user1)).exists()
-
-#get a random sticky colour from those in the DB
-def GetRandomColour():
-    iRandomIndex = randint(0, Colour.objects.count() - 1);
-    pRandomColour = Colour.objects.all()[iRandomIndex];
-    return pRandomColour;
 
 
 

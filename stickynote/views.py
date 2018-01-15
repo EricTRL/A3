@@ -4,6 +4,8 @@ from .models import Stickynote, Colour, Group, SortingPreference #DB tables
 from friends.models import Friend, Collaborator, FriendRequest #DB tables
 from django.utils import timezone #timezone-data
 
+from .utility_functions import UsersAreFriends, CanEditStickynote, CanOpenStickynote, GetRandomColour #utility functions
+
 from django.db.models import Count    #Count
 from django.shortcuts import render, redirect #rendering
 from django.db.models.functions import Lower #to transform to lowercase in a .filter
@@ -83,7 +85,7 @@ def get_sticky_by_id(request):
     if request.user.is_authenticated:
         iStickyID = request.GET.get('iStickyID',None)
         #Sticky must exist and only the author of the sticky can retrieve it
-        if iStickyID == None or not Stickynote.objects.filter(id=iStickyID, group_id__author_id=request.user.id).exists():
+        if iStickyID == None or not CanOpenStickynote(iStickyID, request.user.id):
             return JsonResponse({'status':'false','message':"ERROR: Invalid StickynoteID passed or access denied"}, status=404)
         pSticky = Stickynote.objects.get(id=iStickyID);
 
@@ -96,10 +98,10 @@ def get_sticky_by_id(request):
             'colour_id':        pSticky.colour_id,
             'group_id':         pSticky.group_id,
             'group_is_shared':  Group.objects.get(id=pSticky.group_id).shared if Group.objects.filter(id=pSticky.group_id).exists() else False,
+            'can_edit':         CanEditStickynote(iStickyID, request.user.id),
         }
         return JsonResponse(data)
     return JsonResponse({'status':'false','message':"ERROR: Not Logged in, so nothing to retrieve"}, status=401)
-
 
 #Gets the data of a Colour with the given ID.
 #Returns an error if no such colour exists
@@ -184,12 +186,6 @@ def get_random_colour(request):
     print(data)
     return JsonResponse(data)
 
-#get a random sticky colour from those in the DB
-def GetRandomColour():
-    iRandomIndex = randint(0, Colour.objects.count() - 1);
-    pRandomColour = Colour.objects.all()[iRandomIndex];
-    return pRandomColour;
-
 '''
 #Get all stickynote colours (and their RGB-values from the DB)
 def retrieve_sticky_colours(request):
@@ -222,55 +218,6 @@ def user_logout(request):
     print('someone just logged out')
     logout(request);
     return HttpResponseRedirect('/');
-
-'''
-#Retrieve the stickynotes of the currently logged in user
-def retrieve_current_user_data(request):
-    if request.user.is_authenticated:
-        user = request.user;
-        print(user.username + " requested his/her stickies!")
-        table = [];
-        for sticky in Stickynote.objects.filter(author_id=user.id):
-            #if, for w/e reason an invalid colour was in the DB, default to yellow
-            #colour = not Colour.objects.filter(id=sticky.colour_id).exists() and "yellow" or Colour.objects.get(id=sticky.colour_id);
-            table.append({'id': sticky.id, 'colour': sticky.colour_id, 'title': sticky.title, 'contents': sticky.contents})
-
-        data = {
-            'name': user.first_name,
-            'stickies': table,
-        }
-        return JsonResponse(data)
-    return JsonResponse({'status':'false','message':"ERROR: User was not logged in. Cannot retrieve stickynotes!"}, status=401)
-'''
-
-'''
-#Add stickies to the DB
-def create_stickies(request, *args, **kwargs):
-    if request.user.is_authenticated:
-        #retrieve the array (this actually requires a .getlist instead of a .get. Also, note that the "[]" are important!)
-        tStickies = request.POST.getlist('stickydata[]', None)
-        print(tStickies)
-        if tStickies:
-            for s in tStickies:
-                s=json.loads(s);
-                print(s);
-                if s['id'] <= 0 or not Stickynote.objects.filter(id=s['id']).exists():
-                    #Only create a new entry in the DB if we don't have one already
-                    Stickynote.objects.create(title=s['title'], contents=s['contents'], created_date=timezone.now(), shared=False, author_id=request.user.id, colour_id=s['colour'])
-                    return HttpResponseRedirect('/') #SUCCESSFUL
-                elif Stickynote.objects.filter(id=s['id']).exists() and Stickynote.objects.get(id=s['id']).author_id == request.user.id:
-                    #Only update if the sticky with the given ID belongs to the currently logged in user
-                    sticky = Stickynote.objects.get(id=s['id'])
-                    sticky.title = s['title']
-                    sticky.contents = s['contents']
-                    #Update the sticky colour if it exists, otherwise default to colour with id=1
-                    sticky.colour = Colour.objects.get(id=s['colour']) if Colour.objects.filter(id=s['colour']).exists() else Colour.objects.get(id=1)
-                    #add a "last edited"-date (not being used, but we can possibly use it in A3)
-                    sticky.last_edit_date = timezone.now()
-                    sticky.save()
-                    return HttpResponseRedirect('/') #SUCCESSFUL
-    return HttpResponseRedirect('') #FAILED
-'''
 
 #returns true if the client is authenticated (I.e. logged in). returns false otherwise
 def user_is_authenticated(request):

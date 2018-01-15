@@ -233,9 +233,6 @@ $(document).ready(function() {
 
 	//opening the sticky editor:
 	$('#id_open_sticky_editor').on('click', function(e){
-		$('#id_popup_view_sticky').hide();
-		$('#id_popup_add_sticky').show();
-		bAddStickyPopupIsActive = true;
 		openStickyEditor(iLastSelectedSticky,false);
 	});
 
@@ -424,6 +421,11 @@ function openStickyViewer(iID){
 			$(".popup_title").text(data.title === "" ? "(UNNAMED STICKY)" : data.title);
 			$(".popup_title").css('font-style', data.title === "" ? 'italic' : "normal");
 
+			if (data.can_edit){
+				$(".hide_if_cannot_edit").show();
+			}else{
+				$(".hide_if_cannot_edit").hide();
+			}
 
 			$("#id_popup_view_sticky_contents").html(quillGetHTML(JSON.parse(data.contents)))
 			//in case a sticky has no contents (not even a single space or enter, give the user a message)
@@ -478,38 +480,51 @@ function openStickyEditor(iID, bAppendNewSticky){
 		//TODO (maybe): Append a "new sticky" on the screen for fancy visuals
 	}else{
 		//existing stickynote. iID = stickyID
-		$(".popup_title").text("Edit Sticky");
 
 		//existing sticky that the user wants to edit, so retrieve all the fields from the DB
 		get_sticky_by_id(iID, function(data){
-			$("#id_popup_add_sticky input[name=title]").val(data.title);
-			quill.setContents(JSON.parse(data.contents));
+			//only open the editor if we can actually edit
+			if (data.can_edit){
+				//set the popup-title
+				$(".popup_title").text("Edit Sticky");
 
-			//and update the editor colours:
-			get_colour_by_id(data.colour_id, function(data2){
-				//Update the Editor Colours
-				UpdateEditorColours(data2.r, data2.g, data2.b, data2.a, data2.filename);
+				//set the sticky input bar title
+				$("#id_popup_add_sticky input[name=title]").val(data.title);
+				quill.setContents(JSON.parse(data.contents));
 
-				//Set the correct Radio Button
-				$('#colour_' + data.colour_id).prop('checked', true);
+				//and update the editor colours:
+				get_colour_by_id(data.colour_id, function(data2){
+					//Update the Editor Colours
+					UpdateEditorColours(data2.r, data2.g, data2.b, data2.a, data2.filename);
 
-				//Set the shared-checkbox (if appropriate)
-				if (data.group_is_shared){
-					$('.show_if_group_shared').show();
-					$('.hide_if_group_shared').hide();
-				}else{
-					$('.show_if_group_shared').hide();
-					$('.hide_if_group_shared').show();
-					$("#id_sticky_options_shared input[name=shared]").prop('checked',data.shared)
-				}
+					//Set the correct Radio Button
+					$('#colour_' + data.colour_id).prop('checked', true);
 
-				//Set the group-Dropdown
-				$("#id_sticky_options_group select").val(data.group_id);
+					//Set the shared-checkbox (if appropriate)
+					if (data.group_is_shared){
+						$('.show_if_group_shared').show();
+						$('.hide_if_group_shared').hide();
+					}else{
+						$('.show_if_group_shared').hide();
+						$('.hide_if_group_shared').show();
+						$("#id_sticky_options_shared input[name=shared]").prop('checked',data.shared)
+					}
 
-				//If that all has been done, we can finally actually open the editor
-				bAddStickyPopupIsActive = true;
-				$('#id_popup_add_sticky').stop().fadeIn();
-			});
+					//Set the group-Dropdown
+					$("#id_sticky_options_group select").val(data.group_id);
+
+					//If that all has been done, we can finally actually open the editor
+					bAddStickyPopupIsActive = true;
+					if ($('#id_popup_view_sticky').is(":visible")){
+						//show instantly if opened up from the viewer
+						$('#id_popup_view_sticky').hide();
+						$('#id_popup_add_sticky').show();
+					}else{
+						//fade in otherwise
+						$('#id_popup_add_sticky').stop().fadeIn();
+					}
+				});
+			}
 		});
 	}
 }
