@@ -4,7 +4,7 @@ from stickynote.models import Stickynote, Colour, Group #DB tables
 from friends.models import Friend, Collaborator, FriendRequest
 from django.utils import timezone #timezone-data
 
-from stickynote.utility_functions import UsersAreFriends, CanEditStickynote, CanOpenStickynote, GetRandomColour #utility-functions
+from stickynote.utility_functions import UsersAreFriends, CanEditStickynote, CanOpenStickynote, GetRandomColour, UpdateFriendRequestStatus #utility-functions
 
 from django.db.models import Q #Allow OR-lookups
 from random import randint #random number generator
@@ -93,17 +93,13 @@ def get_users_by_names(request):
         iSearchTermStart = 0;
         iSearchTermEnd = sSearchData.find(' ', iSearchTermStart);
         sSearchTerm = sSearchData[iSearchTermStart:iSearchTermEnd];
+
         #Loop through every search term. I.e. every word separated by a whitespace. Whitespaces are treated as an OR
         while iSearchTermEnd != -1:
             print("Now searching for (" + sSearchTerm + ")");
-
             for user in User.objects.filter(Q(username__contains=sSearchTerm) | Q(first_name__contains=sSearchTerm) | Q(last_name__contains=sSearchTerm)| Q(email__contains=sSearchTerm)).order_by('username'):
                 #Exclude the requesting user from the search
                 if iRequestUser != user.id:
-                    #Get already pending friend request
-                    sStatus = FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).order_by('-created_date')[0].status if FriendRequest.objects.filter(receiver=user.id, sender=request.user.id).exists() else "NONE";
-                    #check if the users are friends. If not, then it doesn't even matter that the last request was ACCEPTED
-                    sStatus = "NONE" if (sStatus=="ACCEPTED" and not UsersAreFriends(user.id, iRequestUser)) else sStatus;
                     validUsers = validUsers|User.objects.filter(id=user.id)
             iSearchTermStart = iSearchTermEnd + 1;
             iSearchTermEnd = sSearchData.find(' ', iSearchTermStart);
@@ -117,6 +113,14 @@ def get_users_by_names(request):
         #Store it to an array to be able to send it back
         for user in validUsers:
             sLastName = user.last_name if len(user.last_name) > 0 else "<i>(Last name not set)</i>";
+            sStatus = "NONE";
+            #Get the last friend request (and update the status based on that)
+            if FriendRequest.objects.filter(Q(receiver=user.id, sender=request.user.id) | Q(receiver=request.user.id, sender=user.id)).exists():
+                sStatus = FriendRequest.objects.filter(Q(receiver=user.id, sender=request.user.id) | Q(receiver=request.user.id, sender=user.id)).order_by('-created_date')[0].status;
+
+            #check if the users are friends. If not, then it doesn't even matter that the last request was ACCEPTED
+            sStatus = "NONE" if (sStatus=="ACCEPTED" and not UsersAreFriends(user.id, iRequestUser)) else sStatus;
+
             tUsers.append([user.id, user.username, sStatus, user.first_name, sLastName, user.email, user.last_login, user.date_joined, user.is_superuser, user.is_staff, user.is_active]);
         print(tUsers)
     return JsonResponse({"tUsers": tUsers})
@@ -124,24 +128,27 @@ def get_users_by_names(request):
 
 ################################################################################
 ##Friend Requests
-#TODO: geen requests mogen sturen als er al n request de andere kant op staat -> auto-accept request van andere kant
-#Sends a friend request from user1 to user2 (if such one doesn't yet exist)
+
+#Sends a friend request from user1 to user2 (if there is not a pending friend request between these users yet)
+#Also auto-accepts if user1 sends a friend request to user 2, but user1 already has a pending friend request from user2
 def send_friend_request(request, *args, **kwargs):
     if request.user.is_authenticated:
         iUserReceive = request.POST.get('receiver', -1)
 
         #Users must exist and cannot send to yourself
         if iUserReceive and iUserReceive != request.user.id and User.objects.filter(id=iUserReceive).exists():
-            #cannot send another request if one is still PENDING
-            checked_friend_requests_out = FriendRequest.objects.filter(Q(status="PENDING"), Q(sender=request.user.id), Q(receiver=iUserReceive))
-            checked_friend_requests_in = FriendRequest.objects.filter(Q(status="PENDING"), Q(sender=iUserReceive), Q(receiver=request.user.id))
-            if not checked_friend_requests_in.exists() and not checked_friend_requests_out.exists():
-                FriendRequest.objects.create(sender_id=request.user.id, receiver_id=iUserReceive, status='PENDING', created_date=timezone.now());
-                return HttpResponseRedirect('/') #redirect to nothing (but we still need to return something in order to fire the success() function)
+            #Users cannot be friends yet
+            if not UsersAreFriends(iUserReceive, request.user.id):
+                #cannot send another request if one is still PENDING
+                if not FriendRequest.objects.filter(Q(status="PENDING"), Q(sender=request.user.id), Q(receiver=iUserReceive)).exists():
+                    if not FriendRequest.objects.filter(Q(status="PENDING"), Q(sender=iUserReceive), Q(receiver=request.user.id)).exists():
+                        FriendRequest.objects.create(sender_id=request.user.id, receiver_id=iUserReceive, status='PENDING', created_date=timezone.now());
+                    else:
+                        #Auto-accept friend request if the other user has sent us a pending request
+                        UpdateFriendRequestStatus(iUserReceive, request.user.id, "ACCEPTED");
+                    return HttpResponseRedirect('/') #redirect to nothing (but we still need to return something in order to fire the success() function)
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)
 
-
-tValidStatuses = ["PENDING","ACCEPTED","DENIED"];
 
 #Responds to a friend request (accept, deny, TODO: block?)
 def respond_friend_request(request, *args, **kwargs):
@@ -152,16 +159,10 @@ def respond_friend_request(request, *args, **kwargs):
         print(sStatus);
 
         #Users must exist and cannot send to yourself
-        if iUserSender and sStatus and (sStatus in tValidStatuses) and User.objects.filter(id=iUserSender).exists():
+        if iUserSender and sStatus and User.objects.filter(id=iUserSender).exists():
             #cannot only make a response to an existing request
             if FriendRequest.objects.filter(status="PENDING", sender=iUserSender, receiver=request.user.id).exists():
-                pRequest = FriendRequest.objects.get(status="PENDING", sender=iUserSender, receiver=request.user.id);
-                pRequest.status = sStatus;
-                pRequest.save();
-
-                #Only become friends if we actually accept and we aren't friends yet
-                if sStatus == "ACCEPTED" and not UsersAreFriends(iUserSender,request.user.id):
-                    Friend.objects.create(user1_id=iUserSender, user2_id=request.user.id, friended_date=timezone.now());
+                UpdateFriendRequestStatus(iUserSender, request.user.id, sStatus);
 
                 return HttpResponseRedirect('/') #redirect to nothing (but we still need to return something in order to fire the success() function)
     return HttpResponseRedirect('') #redirect to nothing (ajax fail function fires too)

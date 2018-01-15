@@ -394,9 +394,6 @@ nav div li {
 	.popup .sticky_edit {
 		width: 100%;
 	}
-	.popup .sticky_autoshare {
-		color: #a94442;;
-	}
 
 /*Viewer*/
 #id_popup_view_sticky .body {
@@ -600,6 +597,11 @@ span.show-login-name {
 	color: rgb(153, 0, 0);
 	width: 100%;
 	text-align: center;
+}
+
+.warning {
+	color: #a94442 !important;
+	font-weight: bold !important;
 }
 
 .wrap-word-newline {

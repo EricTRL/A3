@@ -41,6 +41,22 @@ def UsersAreFriends(user1, user2):
     return Friend.objects.filter(Q(user1_id=user1, user2_id=user2) | Q(user1_id=user2, user2_id=user1)).exists()
 
 
+#Valid statuses for friend requests
+tValidStatuses = ["PENDING","ACCEPTED","DENIED"];
+
+#Updates the state of a Friend request from a given user to another user. Assumes that such a request exists;
+#returns true if the given users successfully became friends. returns false otherwise
+def UpdateFriendRequestStatus(iUserSender, iUserReceiver, sStatus):
+    if (sStatus in tValidStatuses):
+        pRequest = FriendRequest.objects.get(status="PENDING", sender=iUserSender, receiver=iUserReceiver);
+        pRequest.status = sStatus;
+        pRequest.save();
+
+        #Only become friends if we actually accept and we aren't friends yet
+        if sStatus == "ACCEPTED" and not UsersAreFriends(iUserSender,iUserReceiver):
+            Friend.objects.create(user1_id=iUserSender, user2_id=iUserReceiver, friended_date=timezone.now());
+            return True;
+    return False;
 
 
 #comment here to prevent Atom from remvoing these lines

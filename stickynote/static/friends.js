@@ -18,7 +18,7 @@ $(document).ready(function() {
           print(data.tUsers);
           //No results
           if (data.tUsers.length <= 0) {
-            $('#id_search_friends_result').append("<p>No Users match this search result :c</p>");
+            $('#id_search_friends_result').append("<p class='warning'>No Users match this search result <span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span></p>");
           }else{
             //append each result
             data.tUsers.forEach(function(user) {
@@ -32,7 +32,12 @@ $(document).ready(function() {
             $('.button_add_friend').on('click',function(e){
                 const iUser = $(this).attr("id").substring("id_add_friend_".length);
                 print("Sending " + iUser + " a friend request");
-                send_friend_request(iUser, null, null);
+                const clickedButton = this;
+                send_friend_request(iUser, function(e){
+                  //disable the button and change the text
+                  $(clickedButton).html("Friend Request Sent <span class='glyphicon glyphicon-ok' aria-hidden='true'></span>")
+                  $(clickedButton).attr("disabled", true)
+                }, null);
             });
           }
       });
@@ -187,7 +192,9 @@ function respond_friend_request(iSender, sResponse,onSuccess,onFail) {
 		const sResponse = $(this).attr("name");
 		print(iSender);
 		print(sResponse);
-		respond_friend_request(iSender, sResponse, null, null);
+		respond_friend_request(iSender, sResponse, function(e){
+      location.reload();
+    }, null);
 	});
 
 
