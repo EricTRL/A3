@@ -30,15 +30,15 @@
 		<h2>Set sorting preference</h2>
 		<form method="POST" class="sorting-to-TITLE" action="{% url 'stickynote:set_sorting_pref_to_title' %}" >
     		{% csrf_token %}
-    		<button type="submit" class="btn btn-info" aria-hidden='true'>Title</button>
+    		<button type="submit" class='btn btn-{% if active_pref == "TITLE" %}success{% else %}info{% endif %}' aria-hidden='true'>Title</button>
     	</form>
     	<form method="POST" class="sorting-to-CREATED" action="{% url 'stickynote:set_sorting_pref_to_created' %}" >
     		{% csrf_token %}
-    		<button type="submit" class="btn btn-info" aria-hidden='true'>Date Created</button>
+    		<button type="submit" class='btn btn-{% if active_pref == "DATE_CREATED" %}success{% else %}info{% endif %}' aria-hidden='true'>Date Created</button>
     	</form>
     	<form method="POST" class="sorting-to-EDITED" action="{% url 'stickynote:set_sorting_pref_to_edited' %}" >
     		{% csrf_token %}
-    		<button type="submit" class="btn btn-info" aria-hidden='true'>Last Edit</button>
+    		<button type="submit" class='btn btn-{% if active_pref == "DATE_EDITED" %}success{% else %}info{% endif %}' aria-hidden='true'>Last Edit</button>
     	</form>
     </div>
 </div>

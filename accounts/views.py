@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 
 from accounts.forms import UpdateAccountForm, FirstLastNameForm
-from stickynote.models import Group
+from stickynote.models import Group, SortingPreference
 
 # Create your views here.
 
@@ -55,7 +55,13 @@ def remove_view(request):
 #Profile page
 @login_required
 def profile_view(request):
-	return render(request, 'accounts/profile.html')
+	sp = SortingPreference.objects.get(user=request.user)
+	if not sp.sorting_pref == "":
+		active_pref = sp.sorting_pref
+	else:
+		active_pref = "TITLE"
+	print(active_pref)
+	return render(request, 'accounts/profile.html', {'active_pref': active_pref})
 
 #Change password
 @login_required
