@@ -203,7 +203,7 @@ nav div li {
         margin-left: 4px;
         margin-right: 4px;
         grid-auto-rows: 150px;
-        /justify-content: space-evenly; /*This doesn't work on most browsers, so it's done dynamically in js instead by changing the padding and grid-gap*/
+        /*justify-content: space-evenly; */ /*This doesn't work on most browsers, so it's done dynamically in js instead by changing the padding and grid-gap*/
     }
 }
 
@@ -404,6 +404,19 @@ nav div li {
 	min-height: 300px;
 }
 
+/*Warning Popup:*/
+#id_popup_warning .header {
+	background-color: #a94442;
+}
+
+#id_popup_warning .body {
+	background-color: #f2dede;
+}
+	#id_popup_warning .body .buttons button {
+		background-color: #a94442;
+		color: #f2dede;
+		min-width: 140px;
+	}
 
 
 
@@ -561,6 +574,11 @@ span.show-login-name {
 		margin-top: 15px;
 }
 
+.panel-body {
+	padding: 5px 15px !important;
+	border-bottom: 1px solid #ddd;
+}
+
 
 /*=====================================================================================*/
 /*Misc*/
@@ -601,7 +619,7 @@ span.show-login-name {
 
 .warning {
 	color: #a94442 !important;
-	font-weight: bold !important;
+	font-weight: bold;
 }
 
 .wrap-word-newline {
@@ -630,6 +648,21 @@ span.show-login-name {
 	/*bootstrap fix: Bootstrap gives checkboxes and radio buttons a weird 4px top-margin*/
 	margin-top: 0px !important;
 }
+
+@media (min-width: 768px) {
+    .show_on_mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .hide_on_mobile {
+        display: none !important;
+    }
+}
+
+/*////////////////////////////////////////////////////////////////////////////*/
+/*FRIENDS page*/
 
 .friends-listed-name {
 	width: 40%;

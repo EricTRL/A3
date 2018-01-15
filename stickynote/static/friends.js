@@ -20,13 +20,16 @@ $(document).ready(function() {
           if (data.tUsers.length <= 0) {
             $('#id_search_friends_result').append("<p class='warning'>No Users match this search result <span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span></p>");
           }else{
+            let sHTML = "";
+            let sHTML_Mobile = "";
             //append each result
             data.tUsers.forEach(function(user) {
                 //append the element
-                $('#id_search_friends_result').append(getFriendHTMLEntry(user[0], user[1], user[2], user[3], user[4]))
+                sHTML += getFriendHTMLEntry(user[0], user[1], user[2], user[3], user[4]);
+                sHTML_Mobile += getFriendHTMLEntryMobile(user[0], user[1], user[2], user[3], user[4]);
             });
             //make the table around it
-            $('#id_search_friends_result').html(getFriendTotalHTMLEntry($('#id_search_friends_result').html()));
+            $('#id_search_friends_result').html(getFriendTotalHTMLEntry(sHTML) +  sHTML_Mobile);
 
             //set on-click listeners
             $('.button_add_friend').on('click',function(e){
@@ -46,7 +49,7 @@ $(document).ready(function() {
 //end of document.ready
 ////////////////////////////////////////////////////////////////////////////////
 function getFriendTotalHTMLEntry(sData){
-  return  '<ul class="list-group"> ' +
+  return  '<ul class="list-group hide_on_mobile"> ' +
           '  <li class="list-group-item"> ' +
           '    <table style="width:100%"> ' +
           '      <tr> ' +
@@ -77,8 +80,22 @@ function getFriendHTMLEntry(iID, sUsername, sStatus, sFirstName, sLastName){
           '        </td> ' +
           '      </tr> ' +
           '    </table> ' +
-          '  </li> ' +
-          '</ul>';
+          '  </li> ';
+}
+
+function getFriendHTMLEntryMobile(iID, sUsername, sStatus, sFirstName, sLastName){
+  return '<div class="panel panel-default show_on_mobile">' +
+         '    <div class="panel-heading">Username: ' + sUsername + '</div>' +
+         '    <div class="panel-body">' +
+                  "First Name: " + sFirstName+
+         '    </div>' +
+         '    <div class="panel-body">' +
+                  "Last Name: " + sLastName +
+         '    </div>' +
+         '    <div class="panel-body">' +
+                  getFriendStatusButton(iID, sStatus) +
+         '    </div>' +
+         '</div>';
 }
 
 function getFriendStatusButton(iID, sStatus){

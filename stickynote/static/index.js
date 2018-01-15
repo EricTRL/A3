@@ -141,12 +141,30 @@ $(document).ready(function() {
 	//Deleting a group:
 	$('.button_delete_group').on('click',function(e){
 			const iGroup = $(this).attr("id").substring("id_rename_group_".length);
-
-			//update the DB
-			delete_group_by_id(iGroup,function(){
-				location.reload();
-			},null);
+			iLastSelectedGroup = iGroup;
+			bAddStickyPopupIsActive = true;
+			$('#id_popup_warning').fadeIn();
+			const body = $("html, body");
+			body.stop().animate({scrollTop:0}, 500, 'swing', function() {
+				 //upon finishing
+			});
 	});
+
+	//Confirming delete group
+	$('#id_confirm_warning').on('click', function(e){
+		//update the DB
+		delete_group_by_id(iLastSelectedGroup,function(){
+			location.reload();
+		},null);
+	});
+
+	//Canceling Delete group
+	$('#id_cancel_warning').on('click', function(e){
+		bAddStickyPopupIsActive = false;
+		iLastSelectedGroup = -1;
+		$('#id_popup_warning').fadeOut();
+	});
+
 
 	//Sharing (or un-sharing) a group
 	$('.button_share_group').on('click', function(e){
@@ -340,6 +358,7 @@ let bIsLoggedIn = false; 		//whether the user is logged in
 let iNumMaxColStickies = 1; //Represents how many stickies can fit in a single column of the grid (updated in calculateGridSize());
 let iPrevNavWidth = -1; 		//The scrollbarlistener fires the resize event twice, so this prevents unnecessary calculations
 let iLastSelectedSticky = -1; //The ID of the last selected stickynote. -1 if a new sticky was added
+let iLastSelectedGroup = -1;
 
 //TODO: remove (WARNING)
 //let tStickies = []; //array that will contain all stickynotes (no matter the group)

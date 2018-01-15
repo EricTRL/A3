@@ -189,6 +189,27 @@
   <!--Grey out the rest of the screen (to prevent button presses as well)-->
   <div class="hide_screen"></div>
 </div>
+
+
+<!--Deleting a group-->
+<div class="popup popup_elem hidden_elem" id="id_popup_warning">
+  <div class="sticky_edit popup_elem">
+    <div class="header popup_elem">
+      <h1 class="popup_elem popup_title">WARNING: Deleting Group</h1>
+    </div>
+    <div class="body row">
+      <div class="col-xs-12">
+          <p class="warning"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> You are about to delete an entire group <span style="font-weight:800">INCLUDING ALL OF ITS CONTENTS</span>.<br> Are you sure you want to do this?<br><br>(NOTE: This cannot be undone)</p>
+          <div class="buttons">
+            <button type="button" id="id_confirm_warning" class="popup_submit_button">Delete Group <span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+            <button type="button" id="id_cancel_warning" class="popup_submit_button">Cancel <span class="glyphicon glyphicon-eject" aria-hidden="true"></span></button>
+          </div>
+      </div>
+    </div>
+  </div>
+  <!--Grey out the rest of the screen (to prevent button presses as well)-->
+  <div class="hide_screen"></div>
+</div>
 {% endblock %}
 
 {% block JS %}
