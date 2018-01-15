@@ -5,44 +5,14 @@
 
 {% block content %}
 
-<div class='signup-wrapper container add-friends-container'>
-  <h1>Add Friends</h1>
-  <hr>
-  <div class="input-group">
-      <input type="text" id="search_friend_bar" class="form-control" placeholder="Search for Friends...">
-      <span class="input-group-btn">
-        <button id="id_search_friends_confirm" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-      </span>
-    </div>
-
-  <div id="id_search_friends_result">
-    <!--Entries added dynamically based on search result-->
-    <div class="panel panel-default">
-      <div class="panel-heading">Panel heading without title</div>
-      <div class="panel-body">
-        Panel content
-      </div>
-      <div class="panel-body">
-        Panel content
-      </div>
-      <div class="panel-body">
-        Panel content
-      </div>
-      <div class="panel-body">
-        Panel content
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<br><br><br><br>
-
 <div class="content container container-padding-bottom">
     <div class="row">
         <div class="signup-wrapper">
 		    <h1>Current Friends:</h1>
+            <form method="POST" class="search-friends-button" action="{% url 'friends:search_friend' %}" >
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Search for friends</button>
+            </form>
 		    <hr>
             <ul class="friends-listed">
                 {% for friends1 in friends1s %}

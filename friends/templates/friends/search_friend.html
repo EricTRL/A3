@@ -1,0 +1,50 @@
+
+{% extends 'stickynote/base.html' %}
+{% load staticfiles %}
+{% load static %}
+
+{% block content %}
+
+<div class='signup-wrapper container add-friends-container'>
+  <h1>Add Friends</h1>
+  <div class='redirect-to-signup'>
+    <p><i><strong><a href="{% url 'friends:friends_page' %}">Click here to return to your friends page</a></strong></i></p>
+  </div>
+  <hr>
+  <div class="input-group">
+      <input type="text" id="search_friend_bar" class="form-control" placeholder="Search for Friends...">
+      <span class="input-group-btn">
+        <button id="id_search_friends_confirm" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+      </span>
+    </div>
+
+  <div id="id_search_friends_result">
+    <!--Entries added dynamically based on search result-->
+    <div class="panel panel-default">
+      <div class="panel-heading">Panel heading without title</div>
+      <div class="panel-body">
+        Panel content
+      </div>
+      <div class="panel-body">
+        Panel content
+      </div>
+      <div class="panel-body">
+        Panel content
+      </div>
+      <div class="panel-body">
+        Panel content
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block JS %}
+    {{ block.super }} {# includes previous content in block #}
+    {# view-specific imports here: #}
+    <!--Import the JS file-->
+  	<script src="{% static 'friends.js' %}"></script>
+{% endblock %}
