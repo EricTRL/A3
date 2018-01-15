@@ -88,7 +88,8 @@
   {% endfor %}
 
 {% if author_id == request.user.id %}
-  <div class="input-group">
+<div id="id_new_group_div">
+  <div  class="input-group">
     <div class="input-group-btn">
       <!-- Button and dropdown menu -->
       <label class="btn btn-default">
@@ -96,14 +97,13 @@
           Shared <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
       </label>
     </div>
-    <div class="create-new-group-name">
     <input id="id_new_group_title" type="text" class="form-control" aria-label="groupname" placeholder="Group Name">
   </div>
-  </div>
-<br>
+  <br>
   <div id="id_add_group_button" class="btn-group" role="group" aria-label="addgroup">
     <button type="button" class="btn btn-default btn-lg">Add Group <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></button>
   </div>
+</div>
   {% endif %}
 
 

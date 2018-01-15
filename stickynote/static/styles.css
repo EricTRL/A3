@@ -274,6 +274,23 @@ nav div li {
 			min-width: 250px;
 		}
 
+#id_new_group_div {
+	margin-left: 4px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 15px;
+	max-width: 600px;
+	/* Lines below are for the background of the box. Opacity is set if RGBa is supported. */
+	/* Fallback for web browsers that doesn't support RGBa */
+    background: rgb(231, 227, 227);
+    /* RGBa with 0.6 opacity */
+    background: rgba(231, 227, 227, 0.6);
+}
+
 /*=====================================================================================*/
 /*Popups:*/
 .popup_elem {
@@ -688,10 +705,6 @@ span.show-login-name {
 
 .container-padding-bottom {
 	padding-bottom: 10px;
-}
-
-.create-new-group-name{
-	width:10%;
 }
 
 /*=====================================================================================*/
