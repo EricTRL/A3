@@ -33,6 +33,10 @@ def friends_page(request):
     return render(request, 'friends/friends.html', {'outgoings':outgoing, 'incomings': incoming, 'friends1s': friends1, 'friends2s': friends2})
 
 @login_required
+def search_friend(request):
+    return render(request, 'friends/search_friend.html')
+
+@login_required
 def view_friend(request, friend_id):
     stickies = [];
     groups = [];
